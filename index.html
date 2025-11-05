@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>8 Puzzle Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #eef2f7;
+      margin: 0;
+    }
+
+    h1 {
+      margin-bottom: 15px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 90px);
+      grid-template-rows: repeat(3, 90px);
+      gap: 8px;
+      background: #c9d6df;
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    .tile {
+      width: 90px;
+      height: 90px;
+      background: #1b9aaa;
+      color: white;
+      font-size: 32px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10px;
+      transition: transform 0.25s ease;
+    }
+
+    .tile.zero {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      background: #3a4750;
+      color: white;
+      font-size: 15px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2e3941;
+    }
+  </style>
+</head>
+<body>
+  <h1>8 Puzzle Visual Demo</h1>
+
+  <div class="board" id="board"></div>
+
+  <div class="controls">
+    <button onclick="generatePuzzle()">Generate</button>
+    <button onclick="startSolve()">Solve (Dummy)</button>
+    <button onclick="prevStep()">◀</button>
+    <button onclick="nextStep()">▶</button>
+  </div>
+
+  <script>
+    let boardElement = document.getElementById("board");
+    let currentStep = 0;
+
+    // Dummy steps for animation simulation
+    let steps = [
+      [[1,2,3],[4,5,6],[7,8,0]],
+      [[1,2,3],[4,5,6],[7,0,8]],
+      [[1,2,3],[4,0,6],[7,5,8]],
+      [[1,2,3],[0,4,6],[7,5,8]]
+    ];
+
+    function render(board) {
+      boardElement.innerHTML = "";
+      board.forEach(row => {
+        row.forEach(val => {
+          let tile = document.createElement("div");
+          tile.className = val === 0 ? "tile zero" : "tile";
+          tile.textContent = val === 0 ? "" : val;
+          boardElement.appendChild(tile);
+        });
+      });
+    }
+
+    function generatePuzzle() {
+      let nums = [1,2,3,4,5,6,7,8,0];
+      nums.sort(() => Math.random() - 0.5);
+      let board = [
+        nums.slice(0,3),
+        nums.slice(3,6),
+        nums.slice(6,9)
+      ];
+      currentStep = 0;
+      render(board);
+    }
+
+    function startSolve() {
+      currentStep = 0;
+      render(steps[currentStep]);
+    }
+
+    function nextStep() {
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        render(steps[currentStep]);
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 0) {
+        currentStep--;
+        render(steps[currentStep]);
+      }
+    }
+
+    render(steps[0]); // initial display
+  </script>
+</body>
+</html>
