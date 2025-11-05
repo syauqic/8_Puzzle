@@ -4,70 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>8 Puzzle Demo</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background: #eef2f7;
-      margin: 0;
-    }
-
-    h1 {
-      margin-bottom: 15px;
-    }
-
-    .board {
-      display: grid;
-      grid-template-columns: repeat(3, 90px);
-      grid-template-rows: repeat(3, 90px);
-      gap: 8px;
-      background: #c9d6df;
-      padding: 10px;
-      border-radius: 12px;
-    }
-
-    .tile {
-      width: 90px;
-      height: 90px;
-      background: #1b9aaa;
-      color: white;
-      font-size: 32px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 10px;
-      transition: transform 0.25s ease;
-    }
-
-    .tile.zero {
-      background: transparent;
-      box-shadow: none;
-    }
-
-    .controls {
-      margin-top: 20px;
-      display: flex;
-      gap: 8px;
-    }
-
-    button {
-      padding: 10px 16px;
-      border: none;
-      background: #3a4750;
-      color: white;
-      font-size: 15px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #2e3941;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <h1>8 Puzzle Visual Demo</h1>

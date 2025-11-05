@@ -21,7 +21,6 @@ h1 {
   background: #c9d6df;
   padding: 10px;
   border-radius: 12px;
-  position: relative;
 }
 
 .tile {
@@ -35,7 +34,6 @@ h1 {
   align-items: center;
   border-radius: 10px;
   transition: transform 0.25s ease;
-  position: absolute;
 }
 
 .tile.zero {
