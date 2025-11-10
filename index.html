@@ -1,79 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>8 Puzzle Demo</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1>8 Puzzle Visual Demo</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>8 Puzzle Demo</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-  <div class="board" id="board"></div>
+  <body>
+    <h1>8 Puzzle Visual Demo</h1>
 
-  <div class="controls">
-    <button onclick="generatePuzzle()">Generate</button>
-    <button onclick="startSolve()">Solve (Dummy)</button>
-    <button onclick="prevStep()">◀</button>
-    <button onclick="nextStep()">▶</button>
-  </div>
+    <!-- Progress bar -->
+    <div class="progress"><div class="progress-bar"></div></div>
 
-  <script>
-    let boardElement = document.getElementById("board");
-    let currentStep = 0;
+    <!-- Tombol arah -->
+    <div class="controls-top" id="arrowUp" style="display: none">
+      <button onclick="moveTile('up')">▲</button>
+    </div>
 
-    // Dummy steps for animation simulation
-    let steps = [
-      [[1,2,3],[4,5,6],[7,8,0]],
-      [[1,2,3],[4,5,6],[7,0,8]],
-      [[1,2,3],[4,0,6],[7,5,8]],
-      [[1,2,3],[0,4,6],[7,5,8]]
-    ];
+    <div class="board-wrapper">
+      <div class="controls-left" id="arrowLeft" style="display: none">
+        <button onclick="moveTile('left')">◀</button>
+      </div>
+      <div class="board" id="board"></div>
+      <div class="controls-right" id="arrowRight" style="display: none">
+        <button onclick="moveTile('right')">▶</button>
+      </div>
+    </div>
 
-    function render(board) {
-      boardElement.innerHTML = "";
-      board.forEach(row => {
-        row.forEach(val => {
-          let tile = document.createElement("div");
-          tile.className = val === 0 ? "tile zero" : "tile";
-          tile.textContent = val === 0 ? "" : val;
-          boardElement.appendChild(tile);
-        });
-      });
-    }
+    <div class="controls-bottom" id="arrowDown" style="display: none">
+      <button onclick="moveTile('down')">▼</button>
+    </div>
 
-    function generatePuzzle() {
-      let nums = [1,2,3,4,5,6,7,8,0];
-      nums.sort(() => Math.random() - 0.5);
-      let board = [
-        nums.slice(0,3),
-        nums.slice(3,6),
-        nums.slice(6,9)
-      ];
-      currentStep = 0;
-      render(board);
-    }
+    <!-- Tombol utama -->
+    <div class="controls">
+      <button id="generateBtn" onclick="generatePuzzle()">Generate</button>
+      <button id="solveBtn" onclick="startSolve()" style="display: none">
+        Solve (Dummy)
+      </button>
+      <button id="tryBtn" onclick="enableTryIt()" style="display: none">
+        Try It
+      </button>
+    </div>
 
-    function startSolve() {
-      currentStep = 0;
-      render(steps[currentStep]);
-    }
+    <!-- Canvas confetti & audio -->
+    <canvas id="confetti"></canvas>
+    <audio id="winSound" src="audio/complete.mp3" preload="auto"></audio>
 
-    function nextStep() {
-      if (currentStep < steps.length - 1) {
-        currentStep++;
-        render(steps[currentStep]);
-      }
-    }
-
-    function prevStep() {
-      if (currentStep > 0) {
-        currentStep--;
-        render(steps[currentStep]);
-      }
-    }
-
-    render(steps[0]); // initial display
-  </script>
-</body>
+    <script src="main.js" defer></script>
+  </body>
 </html>
