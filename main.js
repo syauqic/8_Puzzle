@@ -40,6 +40,7 @@ const gameStatus = document.getElementById("gameStatus");
 const playingBoard = document.getElementById("playingBoard");
 const solveButton = document.getElementById("solveButton");
 const playAgainButton = document.getElementById("playAgainButton");
+const moveDisplay = document.getElementById("moveDisplay");
 
 const solutionBoard = document.getElementById("solutionBoard");
 const solutionProgress = document.getElementById("solutionProgress");
@@ -55,6 +56,7 @@ let seconds = 0;
 let isGameRunning = false;
 let solutionPath = [];
 let currentStep = 0;
+let totalMoves = 0;
 
 // Variabel untuk fitur Drag/Swipe BARU
 let startX = 0;
@@ -190,15 +192,21 @@ function moveTileIfValid(clickedIndex) {
     // Panggil renderPuzzle TIDAK di sini, tapi di endDrag (sudah benar di kode Anda sebelumnya)
     // agar animasi dipicu setelah array diubah.
 
+    // ✅ TAMBAH LANGKAH
+    totalMoves++;
+    moveDisplay.textContent = totalMoves;
+
     // Cek Kemenangan
     if (checkWin(currentPuzzleState)) {
       stopTimer();
 
       // ✅ LOGIKA MENANG DIKEMBALIKAN
       document.getElementById("timerContainer").classList.add("hidden");
+      document.getElementById("moveCounterContainer").classList.add("hidden"); // ✅ Sembunyikan Move Counter Container saat menang
       gameStatus.textContent = `🎉 Congratulations! you have solved the puzzle in ${formatTime(
         seconds
-      )}`;
+      )} with ${totalMoves} moves!`;
+
       solveButton.classList.add("hidden");
       playAgainButton.style.display = "inline-block";
     }
@@ -468,6 +476,14 @@ actionButton.onclick = function () {
 
   stopTimer();
   startTimer();
+
+  // ✅ TAMBAHAN: Tampilkan Timer dan Move Counter di awal game
+  document.getElementById("timerContainer").classList.remove("hidden");
+  document.getElementById("moveCounterContainer").classList.remove("hidden"); // ✅ Tampilkan Move Counter Container
+
+  totalMoves = 0;
+  moveDisplay.textContent = totalMoves;
+
   gameStatus.textContent = "Geser kotak untuk menyelesaikan puzzle!";
 
   // ✅ KOREKSI: Kontrol Tombol Solve (diaktifkan kembali dan disesuaikan)
