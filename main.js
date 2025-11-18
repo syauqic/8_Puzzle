@@ -1,502 +1,426 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const boardEl = document.getElementById("board");
-  const progressBar = document.querySelector(".progress-bar");
-  const solveBtn = document.getElementById("solveBtn");
-  const tryBtn = document.getElementById("tryBtn");
+// =========================================================
+// 1. INISIALISASI VARIABEL DAN ELEMEN
+// =========================================================
 
-  const arrows = {
-    up: document.getElementById("arrowUp"),
-    down: document.getElementById("arrowDown"),
-    left: document.getElementById("arrowLeft"),
-    right: document.getElementById("arrowRight"),
-  };
-
-  let currentBoard = [];
-  let lastRects = new Map();
-
-  // control flags
-  let stopConfetti = false;
-  let tryMode = false;
-  let solving = false; // agar tidak tumpuk solve calls
-
-  // -----------------------
-  // RENDER with FLIP animation
-  // -----------------------
-  function render(board, animate = true) {
-    // record old rects
-    const oldTiles = Array.from(boardEl.children);
-    lastRects.clear();
-    oldTiles.forEach((el) => {
-      const key = el.dataset.key;
-      if (key !== undefined) lastRects.set(key, el.getBoundingClientRect());
+// Fungsi bantu untuk menampilkan/menyembunyikan screen
+const showScreen = (id) => {
+    document.querySelectorAll('.container').forEach(screen => {
+        screen.classList.add('hidden');
     });
+    document.getElementById(id).classList.remove('hidden');
+};
 
-    // create new tiles
-    boardEl.innerHTML = "";
-    for (let r = 0; r < 3; r++) {
-      for (let c = 0; c < 3; c++) {
-        const val = board[r][c];
+
+// Elemen UI
+const screen1 = document.getElementById("screen1");
+const screen2 = document.getElementById("screen2");
+const screen3 = document.getElementById("screen3");
+const screen4 = document.getElementById("screen4");
+
+const playButton = document.getElementById("playButton");
+const guideButton = document.getElementById("guideButton");
+const guideModal = document.getElementById("guideModal");
+const closeModal = document.querySelector(".close-button");
+
+const puzzleBoard = document.getElementById("puzzleBoard");
+const generateButton = document.getElementById("generateButton");
+const actionButton = document.getElementById("actionButton");
+const puzzleStatus = document.getElementById("puzzleStatus");
+
+const timerDisplay = document.getElementById('timerDisplay');
+const gameStatus = document.getElementById('gameStatus');
+const playingBoard = document.getElementById('playingBoard');
+const solveButton = document.getElementById('solveButton');
+const playAgainButton = document.getElementById('playAgainButton');
+
+const solutionBoard = document.getElementById('solutionBoard');
+const solutionProgress = document.getElementById('solutionProgress');
+const stepCounter = document.getElementById('stepCounter');
+const prevStepButton = document.getElementById('prevStepButton');
+const nextStepButton = document.getElementById('nextStepButton');
+const solvePlayAgainButton = document.getElementById('solvePlayAgainButton');
+
+
+const GOAL_STATE = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+let currentPuzzleState = [...GOAL_STATE]; 
+let timerInterval;
+let seconds = 0;
+let isGameRunning = false;
+let solutionPath = []; 
+let currentStep = 0;
+
+// Variabel untuk fitur Drag/Swipe BARU
+let startX = 0;
+let startY = 0;
+let isDragging = false;
+const DRAG_THRESHOLD = 30; // Jarak geser minimum dalam piksel
+
+
+// =========================================================
+// 2. FUNGSI UTILITY & PUZZLE CORE
+// =========================================================
+
+// Cek Solvability (Inversi)
+function isSolvable(state) {
+    let inversions = 0;
+    const puzzleArray = state.filter((n) => n !== 0);
+    for (let i = 0; i < puzzleArray.length; i++) {
+        for (let j = i + 1; j < puzzleArray.length; j++) {
+            if (puzzleArray[i] > puzzleArray[j]) {
+                inversions++;
+            }
+        }
+    }
+    return inversions % 2 === 0;
+}
+
+// Mengacak puzzle
+function shufflePuzzle(state) {
+    let array = [...state];
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Render puzzle ke board yang ditentukan (HAPUS clickHandler)
+function renderPuzzle(state, boardElement) {
+    boardElement.innerHTML = "";
+    state.forEach((value) => {
         const tile = document.createElement("div");
-        tile.className = val === 0 ? "tile zero" : "tile";
-        tile.textContent = val === 0 ? "" : val;
-        tile.dataset.key = `${val}`;
-        tile.style.gridRowStart = r + 1;
-        tile.style.gridColumnStart = c + 1;
-        tile.style.transition = "";
-        tile.style.transform = "";
-        boardEl.appendChild(tile);
-      }
-    }
-    currentBoard = board.map((r) => [...r]);
-
-    if (!animate) return;
-
-    // measure new rects and animate from old positions (FLIP)
-    const newTiles = Array.from(boardEl.children);
-    newTiles.forEach((el) => {
-      const key = el.dataset.key;
-      const newRect = el.getBoundingClientRect();
-      const oldRect = lastRects.get(key);
-      if (oldRect) {
-        const dx = oldRect.left - newRect.left;
-        const dy = oldRect.top - newRect.top;
-        el.style.transform = `translate(${dx}px, ${dy}px)`;
-        requestAnimationFrame(() => {
-          el.style.transition = "transform 350ms ease";
-          el.style.transform = "translate(0,0)";
-        });
-        el.addEventListener(
-          "transitionend",
-          () => {
-            el.style.transition = "";
-            el.style.transform = "";
-          },
-          { once: true }
-        );
-      } else {
-        el.style.transform = "scale(0.9)";
-        el.style.opacity = "0";
-        requestAnimationFrame(() => {
-          el.style.transition = "transform 200ms ease, opacity 200ms ease";
-          el.style.transform = "scale(1)";
-          el.style.opacity = "1";
-        });
-        el.addEventListener(
-          "transitionend",
-          () => {
-            el.style.transition = "";
-            el.style.transform = "";
-            el.style.opacity = "";
-          },
-          { once: true }
-        );
-      }
+        tile.classList.add("tile");
+        if (value === 0) {
+            tile.classList.add("empty");
+        } else {
+            tile.textContent = value;
+        }
+        tile.dataset.value = value;
+        
+        // Hapus: if (clickHandler) { tile.addEventListener('click', clickHandler); }
+        
+        boardElement.appendChild(tile);
     });
-  }
+}
 
-  // -----------------------
-  // SOLVABILITY CHECK (needed)
-  // -----------------------
-  // flat: array of 9 numbers (0..8)
-  function isSolvable(flat) {
-    const arr = flat.filter((n) => n !== 0);
-    let inv = 0;
-    for (let i = 0; i < arr.length; i++) {
-      for (let j = i + 1; j < arr.length; j++) {
-        if (arr[i] > arr[j]) inv++;
-      }
+// =========================================================
+// 3. LOGIKA BERMAIN (Langkah 3)
+// =========================================================
+
+function formatTime(totalSeconds) {
+    const min = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+    const sec = (totalSeconds % 60).toString().padStart(2, '0');
+    return `${min}:${sec}`;
+}
+
+function startTimer() {
+    isGameRunning = true;
+    seconds = 0;
+    timerDisplay.textContent = formatTime(seconds);
+    timerInterval = setInterval(() => {
+        seconds++;
+        timerDisplay.textContent = formatTime(seconds);
+    }, 1000);
+}
+
+function stopTimer() {
+    isGameRunning = false;
+    clearInterval(timerInterval);
+}
+
+function checkWin(state) {
+    return state.every((value, index) => value === GOAL_STATE[index]);
+}
+
+function getTileIndex(value) {
+    return currentPuzzleState.indexOf(parseInt(value));
+}
+
+// Logika Perpindahan Tile (DIPERBARUI)
+function moveTileIfValid(clickedIndex) {
+    if (!isGameRunning) return; // Tambahkan cek game running
+
+    const emptyIndex = getTileIndex(0);
+    const size = 3;
+
+    const clickedRow = Math.floor(clickedIndex / size);
+    const clickedCol = clickedIndex % size;
+    const emptyRow = Math.floor(emptyIndex / size);
+    const emptyCol = emptyIndex % size;
+
+    const rowDiff = Math.abs(clickedRow - emptyRow);
+    const colDiff = Math.abs(clickedCol - emptyCol);
+
+    if ((rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1)) {
+        // Lakukan perpindahan di array state
+        [currentPuzzleState[clickedIndex], currentPuzzleState[emptyIndex]] = 
+        [currentPuzzleState[emptyIndex], currentPuzzleState[clickedIndex]];
+
+        renderPuzzle(currentPuzzleState, playingBoard); // Render tanpa handler
+
+        // Cek Kemenangan
+        if (checkWin(currentPuzzleState)) {
+            stopTimer();
+
+            // ✅ BARIS TAMBAHAN: Sembunyikan kontainer timer
+                document.getElementById('timerContainer').classList.add('hidden');
+
+            gameStatus.textContent = `🎉 Congratulations! you have solved the puzzle in ${formatTime(seconds)}`;
+            solveButton.classList.add('hidden');
+            playAgainButton.style.display = 'inline-block';
+        }
     }
-    return inv % 2 === 0;
-  }
+}
 
-  // -----------------------
-  // GENERATE PUZZLE (random solvable)
-  // -----------------------
-  function generateSolvable() {
-    let nums = [1, 2, 3, 4, 5, 6, 7, 8, 0];
-    // shuffle until solvable (limit attempts for safety)
-    let tries = 0;
-    do {
-      nums = nums.sort(() => Math.random() - 0.5);
-      tries++;
-      if (tries > 2000) break; // fallback
-    } while (!isSolvable(nums));
-    return [nums.slice(0, 3), nums.slice(3, 6), nums.slice(6, 9)];
-  }
+// HAPUS fungsi handleClick lama, dan ganti dengan logika drag/swipe:
 
-  //   function generatePuzzle() {
-  //     const board = generateSolvable();
-  //     render(board, false);
-  //     tryBtn.style.display = "inline-block";
-  //     solveBtn.style.display = "inline-block";
-  //     for (let key in arrows) arrows[key].style.display = "none";
-  //     progressBar.style.width = "0%";
-  //     progressBar.parentElement.style.visibility = "hidden";
-  //     const autoBtn = document.getElementById("autoBtn");
-  //     if (autoBtn) {
-  //       autoBtn.remove(); // hapus dari DOM biar bersih
-  //       tryMode = false;
-  //       solving = false;
-  //     }
-  //   }
+function getIndexToMove(direction) {
+    const emptyIndex = currentPuzzleState.indexOf(0);
+    const size = 3; 
+    const emptyRow = Math.floor(emptyIndex / size);
+    const emptyCol = emptyIndex % size;
 
-  function generatePuzzle() {
-  // 🔹 Beberapa puzzle mudah (solvable)
-  const easyPuzzles = [
-    [
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 0, 8], // hampir selesai
-    ],
-    [
-      [1, 2, 3],
-      [4, 5, 6],
-      [0, 7, 8], // 0 di kiri bawah
-    ],
-    [
-      [1, 2, 3],
-      [4, 0, 6],
-      [7, 5, 8], // sedikit acak
-    ],
-  ];
+    // Hitung posisi tile yang akan bergerak ke posisi kosong
+    switch (direction) {
+        case 'up': 
+            // Kotak kosong bergerak ke atas (swipe ke atas), tile di bawahnya yang bergerak
+            return (emptyRow < size - 1) ? emptyIndex + size : -1; 
+        case 'down': 
+            // Kotak kosong bergerak ke bawah (swipe ke bawah), tile di atasnya yang bergerak
+            return (emptyRow > 0) ? emptyIndex - size : -1;
+        case 'left': 
+            // Kotak kosong bergerak ke kiri (swipe ke kiri), tile di kanannya yang bergerak
+            return (emptyCol < size - 1) ? emptyIndex + 1 : -1;
+        case 'right': 
+            // Kotak kosong bergerak ke kanan (swipe ke kanan), tile di kirinya yang bergerak
+            return (emptyCol > 0) ? emptyIndex - 1 : -1;
+        default:
+            return -1;
+    }
+}
 
-  // 🔸 Pilih salah satu puzzle secara acak
-  const board = easyPuzzles[Math.floor(Math.random() * easyPuzzles.length)];
+function startDrag(e) {
+    if (!isGameRunning || checkWin(currentPuzzleState)) return;
+    
+    if (e.type === 'touchstart') {
+        e.preventDefault(); // Mencegah scroll saat swipe di puzzle
+    }
+    
+    startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+    startY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+    isDragging = true;
+    
+    playingBoard.addEventListener('mouseup', endDrag, false);
+    playingBoard.addEventListener('touchend', endDrag, false);
+}
 
-  // 🔹 Render puzzle ke layar
-  render(board);
+function endDrag(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    
+    let endX, endY;
+    if (e.type === 'touchend') {
+        if (e.changedTouches.length === 0) return;
+        endX = e.changedTouches[0].clientX;
+        endY = e.changedTouches[0].clientY;
+    } else {
+        endX = e.clientX;
+        endY = e.clientY;
+    }
 
-  // 🔹 Tampilkan tombol Try It & Solve
-  tryBtn.style.display = "inline-block";
-  solveBtn.style.display = "inline-block";
+    const diffX = endX - startX;
+    const diffY = endY - startY;
+    let tileIndexToMove = -1;
 
-  // 🔹 Sembunyikan tombol arah
-  for (let key in arrows) arrows[key].style.display = "none";
+    // Tentukan arah geser yang valid (melebihi threshold)
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > DRAG_THRESHOLD) {
+        // Gerakan Horizontal
+        // Swipe KANAN (diffX > 0) -> Kotak kosong bergerak KANAN -> Tile KIRI yang bergerak
+        // Swipe KIRI (diffX < 0) -> Kotak kosong bergerak KIRI -> Tile KANAN yang bergerak
+        const direction = diffX > 0 ? 'right' : 'left';
+        tileIndexToMove = getIndexToMove(direction);
+        
+    } else if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > DRAG_THRESHOLD) {
+        // Gerakan Vertikal
+        // Swipe BAWAH (diffY > 0) -> Kotak kosong bergerak BAWAH -> Tile ATAS yang bergerak
+        // Swipe ATAS (diffY < 0) -> Kotak kosong bergerak ATAS -> Tile BAWAH yang bergerak
+        const direction = diffY > 0 ? 'down' : 'up';
+        tileIndexToMove = getIndexToMove(direction);
+    }
+    
+    // Pindahkan tile jika indeksnya valid
+    if (tileIndexToMove !== -1) {
+        moveTileIfValid(tileIndexToMove);
+    }
+    
+    playingBoard.removeEventListener('mouseup', endDrag, false);
+    playingBoard.removeEventListener('touchend', endDrag, false);
+}
 
-  // 🔹 Reset progress bar
-  progressBar.style.width = "0%";
-  progressBar.parentElement.style.visibility = "hidden";
+// Tambahkan event listeners drag/swipe ke playingBoard
+playingBoard.addEventListener('mousedown', startDrag, false);
+playingBoard.addEventListener('touchstart', startDrag, false);
 
-  // 🔹 Hilangkan tombol Auto Play kalau ada
-  const autoBtn = document.getElementById("autoBtn");
-  if (autoBtn) {
-    autoBtn.remove();
-  }
 
-  // 🔹 Reset mode & status
-  tryMode = false;
-  solving = false;
+// =========================================================
+// 4. LOGIKA SOLUSI (Langkah 4)
+// =========================================================
+
+// FUNGSI SIMULASI SOLUSI (Tetap sama)
+function simulateSolution(startState) {
+    if (!isSolvable(startState)) {
+        return [];
+    }
+    
+    let path = [
+        startState, 
+        [1, 2, 3, 4, 0, 5, 7, 8, 6],
+        [1, 2, 3, 4, 5, 0, 7, 8, 6],
+        [1, 2, 3, 4, 5, 6, 7, 8, 0], 
+    ];
+    if (checkWin(startState)) return [startState];
+
+    return path; 
+}
+
+function showSolutionStep(stepIndex) {
+    const totalSteps = solutionPath.length - 1; // Langkah 0 adalah state awal
+
+    if (totalSteps < 0) { 
+        stepCounter.textContent = "Tidak ada solusi.";
+        solutionProgress.style.width = '100%';
+        renderPuzzle(currentPuzzleState, solutionBoard); 
+        return;
+    }
+    
+    currentStep = stepIndex;
+
+    renderPuzzle(solutionPath[currentStep], solutionBoard);
+
+    // ✅ Total Langkah dan Progress Bar
+    stepCounter.textContent = `Langkah ${currentStep}/${totalSteps}`; 
+
+    const progressPercent = (currentStep / totalSteps) * 100;
+    solutionProgress.style.width = `${progressPercent}%`;
+
+    prevStepButton.disabled = currentStep === 0;
+    nextStepButton.disabled = currentStep === totalSteps;
 }
 
 
-  // -----------------------
-  // MODE TRY IT
-  // -----------------------
-  function enableTryIt() {
-    tryBtn.style.display = "none";
-    arrows.up.style.display = "block";
-    arrows.down.style.display = "block";
-    arrows.left.style.display = "block";
-    arrows.right.style.display = "block";
-    tryMode = true;
-  }
+// =========================================================
+// 5. EVENT LISTENERS
+// =========================================================
 
-  // -----------------------
-  // MODE SOLVE (dummy but animated)
-  // -----------------------
-  //
-
-  // -----------------------
-  // MODE SOLVE (dummy but animated + tombol Auto Play)
-  // -----------------------
-  function startSolve() {
-    if (solving) return;
-    solving = true;
-    tryMode = false;
-
-    const steps = [
-      [
-        [1, 2, 3],
-        [4, 5, 6],
-        [7, 8, 0],
-      ],
-      [
-        [1, 2, 3],
-        [4, 5, 6],
-        [7, 0, 8],
-      ],
-      [
-        [1, 2, 3],
-        [4, 0, 6],
-        [7, 5, 8],
-      ],
-      [
-        [1, 2, 3],
-        [0, 4, 6],
-        [7, 5, 8],
-      ],
-    ];
-
-    arrows.up.style.display = "none";
-    arrows.down.style.display = "none";
-    arrows.left.style.display = "block";
-    arrows.right.style.display = "block";
-
-    progressBar.parentElement.style.visibility = "visible";
-    progressBar.style.width = "0%";
-
-    // 🔹 Tambahkan tombol Auto Play di sebelah Solve
-    let autoBtn = document.getElementById("autoBtn");
-    if (!autoBtn) {
-      autoBtn = document.createElement("button");
-      autoBtn.id = "autoBtn";
-      autoBtn.textContent = "Auto Play";
-      Object.assign(autoBtn.style, {
-        marginLeft: "8px",
-        padding: "10px 16px",
-        background: "#1b9aaa",
-        color: "#fff",
-        border: "none",
-        borderRadius: "6px",
-        cursor: "pointer",
-      });
-      autoBtn.onmouseover = () => (autoBtn.style.background = "#157a84");
-      autoBtn.onmouseout = () => (autoBtn.style.background = "#1b9aaa");
-      solveBtn.insertAdjacentElement("afterend", autoBtn);
+// [Langkah 1] Modal Guide
+guideButton.onclick = function () { guideModal.classList.remove('hidden'); };
+closeModal.onclick = function () { guideModal.classList.add('hidden'); };
+window.onclick = function (event) {
+    if (event.target === guideModal) {
+        guideModal.classList.add('hidden');
     }
-    autoBtn.style.display = "inline-block";
+};
 
-    // 🔹 Ketika tombol Auto Play diklik → jalankan auto animasi solve
-    autoBtn.onclick = () => {
-      autoBtn.disabled = true;
-      solveBtn.disabled = true;
-      autoPlaySolve(steps, () => {
-        autoBtn.disabled = false;
-        autoBtn.style.display = "none";
-        solveBtn.disabled = false;
-        progressBar.parentElement.style.visibility = "hidden";
-        solving = false;
-      });
-    };
-  }
+// [Langkah 1 -> Langkah 2] Tombol Play (Sama)
+playButton.onclick = function () {
+    showScreen('screen2'); 
+    
+    puzzleStatus.textContent = 'Tekan Generate untuk membuat Puzzle.';
+    actionButton.disabled = true;
+    actionButton.textContent = 'Main (Play)';
+    
+    currentPuzzleState = [...GOAL_STATE];
+    renderPuzzle(currentPuzzleState, puzzleBoard);
+};
 
-  // -----------------------
-  // ANIMASI AUTO PLAY (dummy animation)
-  // -----------------------
-  function autoPlaySolve(steps, onFinish) {
-    let idx = 0;
-    const total = steps.length;
-    const stepDuration = 700;
-    progressBar.style.transition = `width ${stepDuration}ms linear`;
+// [Langkah 2] Tombol Generate (Sama)
+generateButton.onclick = function () {
+    let shuffledState;
+    let solvable;
 
-    function step() {
-      render(steps[idx], true);
-      const pct = Math.round(((idx + 1) / total) * 100);
-      progressBar.style.width = pct + "%";
+    do {
+        shuffledState = shufflePuzzle([...GOAL_STATE]);
+    } while (checkWin(shuffledState));
 
-      idx++;
-      if (idx < total) {
-        setTimeout(step, stepDuration);
-      } else {
-        setTimeout(() => {
-          if (onFinish) onFinish();
-        }, 400);
-      }
+    solvable = isSolvable(shuffledState);
+    currentPuzzleState = shuffledState;
+    renderPuzzle(currentPuzzleState, puzzleBoard);
+
+    if (solvable) {
+        puzzleStatus.textContent = "✅ Puzzle Solveable";
+        actionButton.textContent = "Main (Play)";
+    } else {
+        puzzleStatus.textContent = "❌ Puzzle Unsolveable";
+        actionButton.textContent = "Coba Saja (Try it Out)";
     }
+    actionButton.disabled = false;
+};
 
-    step();
-  }
+// [Langkah 2 -> Langkah 3] Tombol Action (Play/Try it Out)
+actionButton.onclick = function () {
+    showScreen('screen3');
+    
+    stopTimer();
+    startTimer();
+    gameStatus.textContent = "Geser kotak untuk menyelesaikan puzzle!";
+    
+    // ✅ PERBAIKAN: Kontrol Tombol Solve diaktifkan kembali
+    // if (isSolvable(currentPuzzleState)) { 
+    //     solveButton.classList.remove('hidden');
+    //     solveButton.style.display = 'inline-block';
+    // } else {
+    //     solveButton.classList.add('hidden');
+    //     solveButton.style.display = 'none';
+    // }
+    
+    playAgainButton.style.display = 'none';
 
-  // -----------------------
-  // MOVE TILE (Try It)
-  // -----------------------
-  function moveTile(direction) {
-    let [zr, zc] = findZero(currentBoard);
-    let newBoard = currentBoard.map((r) => [...r]);
-    let targetR = zr,
-      targetC = zc;
+    // Render puzzle di playingBoard
+    renderPuzzle(currentPuzzleState, playingBoard);
+};
 
-    if (direction === "up" && zr < 2) targetR++;
-    if (direction === "down" && zr > 0) targetR--;
-    if (direction === "left" && zc < 2) targetC++;
-    if (direction === "right" && zc > 0) targetC--;
+// [Langkah 3 -> Langkah 4] Tombol Solve (Sama)
+solveButton.onclick = function() {
+    stopTimer(); 
+    showScreen('screen4');
 
-    if (targetR !== zr || targetC !== zc) {
-      [newBoard[zr][zc], newBoard[targetR][targetC]] = [
-        newBoard[targetR][targetC],
-        newBoard[zr][zc],
-      ];
-      render(newBoard, true);
-      if (isSolved(newBoard)) showCompletionPopup();
+    solutionPath = simulateSolution(currentPuzzleState); 
+    
+    if (solutionPath.length > 0) {
+        document.getElementById('solutionStatus').textContent = `Solusi ditemukan dalam ${solutionPath.length - 1} langkah.`;
+        showSolutionStep(0);
+    } else {
+        document.getElementById('solutionStatus').textContent = `Tidak ada solusi untuk puzzle ini (Unsolveable).`;
+        showSolutionStep(0); 
     }
-  }
+}
 
-  function findZero(board) {
-    for (let r = 0; r < 3; r++)
-      for (let c = 0; c < 3; c++) if (board[r][c] === 0) return [r, c];
-    return [0, 0];
-  }
+// [Langkah 3 & 4 -> Langkah 2] Tombol Main Lagi (Sama)
+const resetToScreen2 = () => {
+    showScreen('screen2');
+    playButton.onclick(); 
+};
+playAgainButton.onclick = resetToScreen2;
+solvePlayAgainButton.onclick = resetToScreen2;
 
-  function isSolved(board) {
-    const correct = [1, 2, 3, 4, 5, 6, 7, 8, 0];
-    return board.flat().every((v, i) => v === correct[i]);
-  }
+// [Langkah 4] Navigasi Solusi (Sama)
+prevStepButton.onclick = () => {
+    if (currentStep > 0) showSolutionStep(currentStep - 1);
+};
 
-  // -----------------------
-  // POPUP COMPLETE + PLAY AGAIN (stop confetti)
-  // -----------------------
-  function showCompletionPopup() {
-    // create overlay
-    const overlay = document.createElement("div");
-    overlay.id = "completePopup";
-    Object.assign(overlay.style, {
-      position: "fixed",
-      top: "0",
-      left: "0",
-      width: "100vw",
-      height: "100vh",
-      background: "rgba(0,0,0,0.6)",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: "2000",
-      backdropFilter: "blur(6px)",
+nextStepButton.onclick = () => {
+    if (currentStep < solutionPath.length - 1) showSolutionStep(currentStep + 1);
+};
+
+
+// [INITIAL RENDER] Tampilkan screen1 saat halaman dimuat (Sama)
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('.container').forEach(screen => {
+        screen.classList.add('hidden');
     });
+    screen1.classList.remove('hidden');
 
-    const text = document.createElement("h1");
-    text.textContent = "🎉 COMPLETE! 🎉";
-    Object.assign(text.style, {
-      color: "#fff",
-      fontSize: "64px",
-      marginBottom: "20px",
-      textShadow: "0 0 20px #00f6ff, 0 0 40px #1b9aaa",
-    });
-
-    const button = document.createElement("button");
-    button.textContent = "🔁 Play Again";
-    Object.assign(button.style, {
-      padding: "12px 28px",
-      fontSize: "18px",
-      border: "none",
-      borderRadius: "8px",
-      background: "#1b9aaa",
-      color: "#fff",
-      cursor: "pointer",
-      transition: "0.3s",
-    });
-    button.onmouseover = () => (button.style.background = "#157a84");
-    button.onmouseout = () => (button.style.background = "#1b9aaa");
-
-    button.onclick = () => {
-      const winSound = document.getElementById("winSound");
-      if (winSound) {
-        winSound.pause();
-        winSound.currentTime = 0;
-      }
-      stopConfetti = true; // stop confetti loop
-      overlay.remove();
-      generatePuzzle();
-    };
-
-    overlay.appendChild(text);
-    overlay.appendChild(button);
-    document.body.appendChild(overlay);
-
-    // play sound
-    const winSound = document.getElementById("winSound");
-    if (winSound) {
-      winSound.volume = 0.5;
-      // play may be blocked by browser until user gesture; that's OK
-      try {
-        winSound.play();
-      } catch (e) {
-        /* ignore */
-      }
-    }
-
-    // start confetti loop
-    stopConfetti = false;
-    startConfettiLoop();
-  }
-
-  // -----------------------
-  // CONFETTI LOOP (canvas) with resize support
-  // -----------------------
-  function startConfettiLoop() {
-    const canvas = document.getElementById("confetti");
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-
-    function setup() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    setup();
-    window.addEventListener("resize", setup);
-
-    const pieces = Array.from({ length: 120 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height - canvas.height,
-      size: Math.random() * 30 + 15,
-      color: `hsl(${Math.random() * 360}, 100%, 70%)`,
-      speed: Math.random() * 2 + 1.2,
-      swing: Math.random() * 0.05 + 0.02,
-    }));
-
-    function update() {
-      if (stopConfetti) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        return;
-      }
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let p of pieces) {
-        p.y += p.speed;
-        p.x += Math.sin(p.y * p.swing) * 2;
-        if (p.y > canvas.height + 20) {
-          p.y = -20;
-          p.x = Math.random() * canvas.width;
-          p.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-          p.size = Math.random() * 30 + 15;
-        }
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = 0.95;
-        ctx.fill();
-      }
-      requestAnimationFrame(update);
-    }
-
-    update();
-  }
-
-  // -----------------------
-  // KEYBOARD (only when tryMode)
-  // -----------------------
-  document.addEventListener("keydown", function (event) {
-    if (!tryMode) return;
-    if (event.key === "ArrowUp") moveTile("up");
-    else if (event.key === "ArrowDown") moveTile("down");
-    else if (event.key === "ArrowLeft") moveTile("left");
-    else if (event.key === "ArrowRight") moveTile("right");
-  });
-
-  // -----------------------
-  // initial render
-  // -----------------------
-  render(
-    [
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 8, 0],
-    ],
-    false
-  );
-
-  // expose global functions to HTML buttons
-  window.generatePuzzle = generatePuzzle;
-  window.startSolve = startSolve;
-  window.enableTryIt = enableTryIt;
-  window.moveTile = moveTile;
+    guideModal.classList.add('hidden');
+    
+    renderPuzzle(currentPuzzleState, puzzleBoard);
 });

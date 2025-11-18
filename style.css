@@ -1,196 +1,164 @@
+/* Atur font dan background */
 body {
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: #eef2f7;
-  margin: 0;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f4f8; 
+    color: #333;
 }
 
-h1 {
-  margin-bottom: 15px;
+/* Wadah Utama */
+.game-wrapper {
+    /* Ini adalah titik referensi untuk position: absolute */
+    position: relative; 
+    /* Agar hanya seukuran kontainer yang terlihat */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 500px; 
+    width: 90%; 
 }
 
-.board-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Kotak Kontainer Utama (semua screen) */
+.container {
+    text-align: center;
+    padding: 30px;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    
+    width: 100%; /* Lebar penuh dari game-wrapper */
+    box-sizing: border-box; 
 }
 
-.board {
-  display: grid;
-  grid-template-columns: repeat(3, 90px);
-  grid-template-rows: repeat(3, 90px);
-  gap: 8px;
-  background: #c9d6df;
-  padding: 10px;
-  border-radius: 12px;
+/* Kunci untuk transisi tampilan: Sembunyikan elemen tanpa memengaruhi layout */
+.hidden {
+    display: none !important;
 }
 
+/* Gaya Button Group dan Tombol (sama seperti sebelumnya) */
+.button-group {
+    margin-top: 20px;
+}
+.button-group button {
+    padding: 12px 25px;
+    margin: 0 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s, transform 0.1s;
+}
+#playButton { background-color: #4caf50; color: white; }
+#guideButton { background-color: #ff9800; color: white; }
+#generateButton { background-color: #03a9f4; color: white; }
+#actionButton { background-color: #e91e63; color: white; }
+#actionButton:disabled { background-color: #ccc; cursor: not-allowed; }
+
+/* Gaya Puzzle Board (DIUBAH UNTUK DESAIN BARU) */
+.puzzle-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    width: 300px;
+    height: 300px;
+    margin: 20px auto;
+    
+    /* Perubahan untuk tampilan desain baru */
+    border: 5px solid #E4E7ED; /* Border luar yang lebih lembut */
+    border-radius: 12px; /* Sudut membulat pada keseluruhan board */
+    background-color: #E4E7ED; /* Warna latar belakang di antara tiles */
+    gap: 8px; /* Jarak antar tiles */
+    padding: 8px; /* Padding di dalam board */
+    box-sizing: content-box; 
+}
+
+/* Gaya Tile (DIUBAH UNTUK DESAIN BARU) */
 .tile {
-  width: 90px;
-  height: 90px;
-  background: #1b9aaa;
-  color: white;
-  font-size: 32px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 10px;
-  transition: transform 0.25s ease;
+    /* Aturan tampilan isi tile */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 36px;
+    font-weight: bold;
+    color: white; /* Warna angka menjadi putih */
+    cursor: grab;
+    user-select: none;
+    
+    /* Gaya BARU sesuai desain */
+    background-color: #008080; /* Warna Teal Gelap */
+    border-radius: 6px; /* Sudut tile membulat */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Bayangan lembut */
+    transition: transform 0.2s; /* Untuk animasi perpindahan tiles */
+}
+.tile.empty {
+    /* Kotak kosong harus sesuai dengan latar belakang board */
+    background-color: transparent; 
+    opacity: 1; /* Opacity 1 agar background board terlihat */
+    box-shadow: none;
+    cursor: default;
 }
 
-.tile.zero {
-  background: transparent;
-  box-shadow: none;
+/* Gaya Modal */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-/* Tombol arah */
-.controls-top,
-.controls-bottom {
-  margin: 8px 0;
-}
+/* Gaya Langkah 3 & 4 (Timer, Progress Bar, Navigasi) */
+#timerContainer { font-size: 20px; font-weight: bold; color: #4CAF50; margin-bottom: 10px; }
+#solveButton { background-color: #03a9f4; color: white; }
+#playAgainButton { background-color: #ff9800; color: white; }
 
-.controls-left,
-.controls-right {
-  margin: 0 8px;
-}
-
-button {
-  padding: 10px 16px;
-  border: none;
-  background: #3a4750;
-  color: white;
-  font-size: 15px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #2e3941;
-}
-
-/* Tombol utama */
-.controls {
-  margin-top: 20px;
-  display: flex;
-  gap: 8px;
-}
-
-/* Progress bar */
-.progress {
-  width: 280px;
-  height: 10px;
-  background: #d8dee9;
-  border-radius: 6px;
-  overflow: hidden;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  visibility: hidden;
+/* ✅ Gaya Progress Bar */
+.progress-container { 
+    width: 90%; /* Lebar wadah bar */
+    height: 15px;
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    margin: 15px auto;
+    overflow: hidden; /* Penting! */
 }
 
 .progress-bar {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #1b9aaa, #28c7a6);
-  transition: width 0.2s linear;
-  border-radius: 6px;
+    height: 100%;
+    background-color: #4CAF50; /* Warna hijau */
+    width: 0%; /* Dimulai dari 0% */
+    transition: width 0.3s ease-in-out; /* Efek animasi geser */
 }
 
-.board-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.navigation-group { 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
-
-.controls-top,
-.controls-bottom {
-  margin: 8px 0;
-}
-
-.controls-left,
-.controls-right {
-  margin: 0 8px;
-}
-
-/* Overlay Complete */
-#complete-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  z-index: 999;
-  transition: opacity 0.5s ease;
-}
-
-#complete-overlay.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.complete-text {
-  color: #fff;
-  font-size: 60px;
-  font-weight: bold;
-  text-shadow: 0 0 20px #fff, 0 0 40px #1b9aaa;
-  margin-bottom: 30px;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-#confetti {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 2500; /* ⬆️ dinaikkan biar di depan overlay */
-  pointer-events: none; /* 🟢 biar klik tombol tetap tembus */
-}
-
-
-#complete-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  z-index: 1500; /* ⬇️ lebih rendah dari confetti */
-  transition: opacity 0.5s ease;
-}
-
-#complete-overlay,
-#completePopup {
-  z-index: 2000; /* tetap di bawah confetti */
-}
-
-.complete-text {
-  color: #fff;
-  font-size: 64px;
-  font-weight: bold;
-  text-shadow: 0 0 30px #00f6ff, 0 0 60px #1b9aaa, 0 0 80px #00ffff;
-  animation: pulse 1.5s infinite alternate;
-}
-
+#prevStepButton, #nextStepButton { background-color: #1e88e5; color: white; }

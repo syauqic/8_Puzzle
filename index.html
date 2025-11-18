@@ -1,52 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>8 Puzzle Demo</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8 Puzzle Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="game-wrapper"> 
+        
+        <div class="container" id="screen1">
+            <h1>🎮 8 Puzzle Game</h1>
+            <div class="button-group">
+                <button id="playButton">Main (Play)</button>
+                <button id="guideButton">Panduan (Guide)</p>
+            </div>
+        </div>
 
-  <body>
-    <h1>8 Puzzle Visual Demo</h1>
+        <div class="container hidden" id="screen2">
+            <p id="puzzleStatus">Tekan Generate untuk membuat Puzzle.</p>
+            <div id="puzzleBoard" class="puzzle-board">
+                </div>
+            <div class="button-group">
+                <button id="generateButton">Generate</button>
+                <button id="actionButton" disabled>Main (Play)</button>
+            </div>
+        </div>
 
-    <!-- Progress bar -->
-    <div class="progress"><div class="progress-bar"></div></div>
+        <div class="container hidden" id="screen3">
+            <div id="timerContainer">
+                ⏰ Waktu: <span id="timerDisplay">00:00</span>
+            </div>
+            <p id="gameStatus">Geser kotak untuk menyelesaikan puzzle!</p>
+            <div id="playingBoard" class="puzzle-board">
+            </div>
+            <div class="button-group">
+                <button id="solveButton">Solve</button>
+                <button id="playAgainButton" style="display:none;">Main Lagi</button>
+            </div>
+        </div>
 
-    <!-- Tombol arah -->
-    <div class="controls-top" id="arrowUp" style="display: none">
-      <button onclick="moveTile('up')">▲</button>
+        <div class="container hidden" id="screen4">
+            <p id="solutionStatus">Solusi ditemukan. Gunakan panah untuk melihat langkah.</p>
+            <div class="progress-container">
+                <div id="solutionProgress" class="progress-bar"></div>
+            </div>
+            <div id="solutionBoard" class="puzzle-board">
+            </div>
+            <div class="button-group navigation-group">
+                <button id="prevStepButton" disabled>&#9664; Sebelumnya</button> 
+                <span id="stepCounter">Langkah 0/0</span>
+                <button id="nextStepButton" disabled>Selanjutnya &#9654;</button> 
+            </div>
+            <div class="button-group">
+                <button id="solvePlayAgainButton">Main Lagi</button>
+            </div>
+        </div>
+
+    </main>
+    
+    <div id="guideModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Aturan Main 8 Puzzle</h2>
+            <p>Tujuannya adalah menyusun angka 1 sampai 8 sesuai urutan dengan menggeser kotak (tile) ke ruang kosong. Selamat mencoba!</p>
+        </div>
     </div>
 
-    <div class="board-wrapper">
-      <div class="controls-left" id="arrowLeft" style="display: none">
-        <button onclick="moveTile('left')">◀</button>
-      </div>
-      <div class="board" id="board"></div>
-      <div class="controls-right" id="arrowRight" style="display: none">
-        <button onclick="moveTile('right')">▶</button>
-      </div>
-    </div>
-
-    <div class="controls-bottom" id="arrowDown" style="display: none">
-      <button onclick="moveTile('down')">▼</button>
-    </div>
-
-    <!-- Tombol utama -->
-    <div class="controls">
-      <button id="generateBtn" onclick="generatePuzzle()">Generate</button>
-      <button id="solveBtn" onclick="startSolve()" style="display: none">
-        Solve (Dummy)
-      </button>
-      <button id="tryBtn" onclick="enableTryIt()" style="display: none">
-        Try It
-      </button>
-    </div>
-
-    <!-- Canvas confetti & audio -->
-    <canvas id="confetti"></canvas>
-    <audio id="winSound" src="audio/complete.mp3" preload="auto"></audio>
-
-    <script src="main.js" defer></script>
-  </body>
+    <script src="main.js"></script>
+</body>
 </html>
