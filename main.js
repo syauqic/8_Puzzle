@@ -84,22 +84,42 @@ function shufflePuzzle(state) {
     return array;
 }
 
-// Render puzzle ke board yang ditentukan (HAPUS clickHandler)
 function renderPuzzle(state, boardElement) {
-    boardElement.innerHTML = "";
-    state.forEach((value) => {
-        const tile = document.createElement("div");
-        tile.classList.add("tile");
-        if (value === 0) {
-            tile.classList.add("empty");
-        } else {
-            tile.textContent = value;
+    // Kosongkan board HANYA jika boardElement kosong (initial render)
+    if (boardElement.children.length === 0) {
+        boardElement.innerHTML = "";
+        state.forEach((value) => {
+            const tile = document.createElement("div");
+            tile.classList.add("tile");
+            if (value === 0) {
+                tile.classList.add("empty");
+            } else {
+                tile.textContent = value;
+            }
+            tile.dataset.value = value;
+            boardElement.appendChild(tile);
+        });
+    }
+
+    // PENTING: Gunakan properti CSS Grid Area untuk memposisikan tile yang sudah ada.
+    // CSS Grid akan menangani transisi antar posisi secara halus (jika transition di CSS sudah benar).
+    
+    // Ambil semua tile yang sudah ada di DOM
+    const tiles = Array.from(boardElement.children);
+
+    // Iterasi melalui state BARU dan atur posisi setiap tile
+    state.forEach((value, index) => {
+        // Cari elemen tile yang sesuai dengan nilai ini
+        const tile = tiles.find(t => t.dataset.value == value);
+        
+        if (tile) {
+            // Hitung baris (row) dan kolom (column) berdasarkan index
+            const row = Math.floor(index / 3) + 1;
+            const col = (index % 3) + 1;
+
+            // Terapkan posisi Grid. CSS Grid akan menganimasikan transisi grid-area.
+            tile.style.gridArea = `${row} / ${col} / ${row + 1} / ${col + 1}`;
         }
-        tile.dataset.value = value;
-        
-        // Hapus: if (clickHandler) { tile.addEventListener('click', clickHandler); }
-        
-        boardElement.appendChild(tile);
     });
 }
 
@@ -136,13 +156,14 @@ function getTileIndex(value) {
     return currentPuzzleState.indexOf(parseInt(value));
 }
 
-// Logika Perpindahan Tile (DIPERBARUI)
+// Logika Perpindahan Tile (DIPERBAIKI)
 function moveTileIfValid(clickedIndex) {
-    if (!isGameRunning) return; // Tambahkan cek game running
+    if (!isGameRunning) return false; 
 
     const emptyIndex = getTileIndex(0);
     const size = 3;
 
+    // ... (Logika penentuan row/col dan diff tetap sama) ...
     const clickedRow = Math.floor(clickedIndex / size);
     const clickedCol = clickedIndex % size;
     const emptyRow = Math.floor(emptyIndex / size);
@@ -156,20 +177,22 @@ function moveTileIfValid(clickedIndex) {
         [currentPuzzleState[clickedIndex], currentPuzzleState[emptyIndex]] = 
         [currentPuzzleState[emptyIndex], currentPuzzleState[clickedIndex]];
 
-        renderPuzzle(currentPuzzleState, playingBoard); // Render tanpa handler
+        // Panggil renderPuzzle TIDAK di sini, tapi di endDrag (sudah benar di kode Anda sebelumnya)
+        // agar animasi dipicu setelah array diubah.
 
         // Cek Kemenangan
         if (checkWin(currentPuzzleState)) {
             stopTimer();
 
-            // ✅ BARIS TAMBAHAN: Sembunyikan kontainer timer
-                document.getElementById('timerContainer').classList.add('hidden');
-
+            // ✅ LOGIKA MENANG DIKEMBALIKAN
+            document.getElementById('timerContainer').classList.add('hidden');
             gameStatus.textContent = `🎉 Congratulations! you have solved the puzzle in ${formatTime(seconds)}`;
             solveButton.classList.add('hidden');
             playAgainButton.style.display = 'inline-block';
         }
+        return true; // Berhasil pindah
     }
+    return false; // Gagal pindah
 }
 
 // HAPUS fungsi handleClick lama, dan ganti dengan logika drag/swipe:
@@ -199,25 +222,88 @@ function getIndexToMove(direction) {
     }
 }
 
+// Variabel baru untuk melacak elemen yang di-drag (Sudah ada di kode Anda)
+let tileElementToMove = null; 
+
+
+// FUNGSI BARU: Mendapatkan elemen tile DOM yang akan dipindahkan
+function getTileElementToMove(direction) {
+    const tileIndexToMove = getIndexToMove(direction);
+    if (tileIndexToMove === -1) return null;
+    
+    // Nilai tile yang akan bergerak
+    const tileValue = currentPuzzleState[tileIndexToMove];
+    
+    // Mencari elemen DOM berdasarkan data-value
+    return playingBoard.querySelector(`[data-value="${tileValue}"]`);
+}
+
 function startDrag(e) {
     if (!isGameRunning || checkWin(currentPuzzleState)) return;
     
     if (e.type === 'touchstart') {
-        e.preventDefault(); // Mencegah scroll saat swipe di puzzle
+        e.preventDefault(); 
     }
     
     startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
     startY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
     isDragging = true;
     
+    // ✅ Tambahkan event mousemove/touchmove untuk melacak pergerakan
+    playingBoard.addEventListener('mousemove', dragMove, false);
+    playingBoard.addEventListener('touchmove', dragMove, false);
     playingBoard.addEventListener('mouseup', endDrag, false);
     playingBoard.addEventListener('touchend', endDrag, false);
+
+    // BARU: Reset tileElementToMove
+    tileElementToMove = null;
 }
+
+function dragMove(e) {
+    if (!isDragging) return;
+
+    // Logika dragMove hanya untuk visual feedback (opsional), 
+    // tapi kita akan gunakan ini untuk menentukan tile mana yang di-highlight saat drag.
+    
+    let currentX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+    let currentY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+    const diffX = currentX - startX;
+    const diffY = currentY - startY;
+    
+    // Tentukan arah yang mungkin (jika sudah melewati threshold)
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > DRAG_THRESHOLD) {
+        const direction = diffX > 0 ? 'right' : 'left';
+        tileElementToMove = getTileElementToMove(direction);
+    } else if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > DRAG_THRESHOLD) {
+        const direction = diffY > 0 ? 'down' : 'up';
+        tileElementToMove = getTileElementToMove(direction);
+    } else {
+        tileElementToMove = null;
+    }
+
+    // Terapkan highlight
+    playingBoard.querySelectorAll('.tile').forEach(tile => tile.classList.remove('is-dragging'));
+    if (tileElementToMove && !tileElementToMove.classList.contains('empty')) {
+        tileElementToMove.classList.add('is-dragging');
+    }
+}
+
 
 function endDrag(e) {
     if (!isDragging) return;
     isDragging = false;
     
+    // ✅ Hapus semua listener
+    playingBoard.removeEventListener('mousemove', dragMove, false);
+    playingBoard.removeEventListener('touchmove', dragMove, false);
+    playingBoard.removeEventListener('mouseup', endDrag, false);
+    playingBoard.removeEventListener('touchend', endDrag, false);
+    
+    // Hapus highlight setelah drag selesai
+    playingBoard.querySelectorAll('.tile').forEach(tile => tile.classList.remove('is-dragging'));
+
+    // ... (Logika penentuan arah geser dan tileIndexToMove tetap sama) ...
     let endX, endY;
     if (e.type === 'touchend') {
         if (e.changedTouches.length === 0) return;
@@ -231,30 +317,28 @@ function endDrag(e) {
     const diffX = endX - startX;
     const diffY = endY - startY;
     let tileIndexToMove = -1;
+    let didMove = false;
 
-    // Tentukan arah geser yang valid (melebihi threshold)
     if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > DRAG_THRESHOLD) {
-        // Gerakan Horizontal
-        // Swipe KANAN (diffX > 0) -> Kotak kosong bergerak KANAN -> Tile KIRI yang bergerak
-        // Swipe KIRI (diffX < 0) -> Kotak kosong bergerak KIRI -> Tile KANAN yang bergerak
         const direction = diffX > 0 ? 'right' : 'left';
         tileIndexToMove = getIndexToMove(direction);
-        
     } else if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > DRAG_THRESHOLD) {
-        // Gerakan Vertikal
-        // Swipe BAWAH (diffY > 0) -> Kotak kosong bergerak BAWAH -> Tile ATAS yang bergerak
-        // Swipe ATAS (diffY < 0) -> Kotak kosong bergerak ATAS -> Tile BAWAH yang bergerak
         const direction = diffY > 0 ? 'down' : 'up';
         tileIndexToMove = getIndexToMove(direction);
     }
     
     // Pindahkan tile jika indeksnya valid
     if (tileIndexToMove !== -1) {
-        moveTileIfValid(tileIndexToMove);
+        didMove = moveTileIfValid(tileIndexToMove);
+    }
+
+    // Jika terjadi perpindahan, panggil renderPuzzle untuk memicu animasi
+    if (didMove) {
+        // Memicu animasi swap smooth!
+        renderPuzzle(currentPuzzleState, playingBoard);
     }
     
-    playingBoard.removeEventListener('mouseup', endDrag, false);
-    playingBoard.removeEventListener('touchend', endDrag, false);
+    tileElementToMove = null; // Reset
 }
 
 // Tambahkan event listeners drag/swipe ke playingBoard
@@ -364,14 +448,12 @@ actionButton.onclick = function () {
     startTimer();
     gameStatus.textContent = "Geser kotak untuk menyelesaikan puzzle!";
     
-    // ✅ PERBAIKAN: Kontrol Tombol Solve diaktifkan kembali
-    // if (isSolvable(currentPuzzleState)) { 
-    //     solveButton.classList.remove('hidden');
-    //     solveButton.style.display = 'inline-block';
-    // } else {
-    //     solveButton.classList.add('hidden');
-    //     solveButton.style.display = 'none';
-    // }
+    // ✅ KOREKSI: Kontrol Tombol Solve (diaktifkan kembali dan disesuaikan)
+    if (isSolvable(currentPuzzleState)) { 
+        // Jika puzzle solvable (tombol Action berbunyi "Play"), tampilkan Solve.
+        solveButton.classList.remove('hidden'); 
+        solveButton.style.display = 'inline-block';
+    }
     
     playAgainButton.style.display = 'none';
 
