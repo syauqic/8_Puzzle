@@ -42,13 +42,27 @@
       </div>
 
       <div class="container hidden" id="screen4">
+        <h2>Hasil Solusi</h2>
         <p id="solutionStatus">
           Solusi ditemukan. Gunakan panah untuk melihat langkah.
         </p>
+        
+        <div class="result-stats">
+            <div>
+                <span class="stat-label">⚡ Waktu Algoritma:</span>
+                <span id="executionTimeDisplay">N/A</span>
+                <span class="stat-unit">detik</span>
+            </div>
+            <div>
+                <span class="stat-label">👣 Total Langkah Solusi:</span>
+                <span id="totalStepsDisplay">N/A</span>
+                <span class="stat-unit">langkah</span>
+            </div>
+        </div>
+        <div id="solutionBoard" class="puzzle-board"></div>
         <div class="progress-container">
           <div id="solutionProgress" class="progress-bar"></div>
         </div>
-        <div id="solutionBoard" class="puzzle-board"></div>
         <div class="button-group navigation-group">
           <button id="prevStepButton" disabled>&#9664; Sebelumnya</button>
           <span id="stepCounter">Langkah 0/0</span>

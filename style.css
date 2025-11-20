@@ -1,246 +1,336 @@
 /* Atur font dan background */
 body {
-    font-family: sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    
-    /* Perbaikan: Tetap jaga responsif dasar */
-    padding: 20px; 
-    background-color: #f0f4f8;
-    color: #333;
-    width: 100%;
-    box-sizing: border-box; 
-    overflow-x: hidden; 
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+
+  /* Tetap jaga responsif dasar */
+  padding: 20px;
+  background-color: #f0f4f8;
+  color: #333;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* Wadah Utama */
 .game-wrapper {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    max-width: 500px;
-    width: 100%; 
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 500px;
+  width: 100%;
 }
 
-/* Kotak Kontainer Utama (semua screen) */
+/* Kotak Kontainer Utama */
 .container {
-    text-align: center;
-    padding: 30px;
-    border-radius: 12px;
-    background-color: #fff;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  padding: 30px;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 
-    width: 100%;
-    box-sizing: border-box;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Kunci untuk transisi tampilan: Sembunyikan elemen tanpa memengaruhi layout */
+/* Sembunyikan elemen */
 .hidden {
-    display: none !important;
+  display: none !important;
 }
 
-/* Gaya Button Group dan Tombol */
+/* Button Group */
 .button-group {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
 }
 .button-group button {
-    padding: 12px 25px;
-    margin: 5px 15px; 
-    font-size: 16px;
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    transition: background-color 0.3s, transform 0.1s;
+  padding: 12px 25px;
+  margin: 5px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  transition: background-color 0.3s, transform 0.1s;
 }
+.button-group button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
 #playButton {
-    background-color: #4caf50;
-    color: white;
+  background-color: #4caf50;
+  color: white;
 }
 #guideButton {
-    background-color: #ff9800;
-    color: white;
+  background-color: #ff9800;
+  color: white;
 }
 #generateButton {
-    background-color: #03a9f4;
-    color: white;
+  background-color: #03a9f4;
+  color: white;
 }
 #actionButton {
-    background-color: #e91e63;
-    color: white;
+  background-color: #e91e63;
+  color: white;
 }
 #actionButton:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
 }
 
-/* Gaya Puzzle Board (DIKOREKSI TOTAL UNTUK RESPONSIVITAS GRID YANG BENAR) */
-.puzzle-board {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    
-    /* ✅ KOREKSI 1: Gunakan max-width dan width relatif */
-    width: 90%; 
-    max-width: 300px; /* Batas maksimum agar tidak terlalu besar di desktop */
-    /* HAPUS height: 300px dan padding-top: 90% */
-    
-    margin: 20px auto; 
-    position: relative; 
-    
-    /* Perubahan untuk tampilan desain baru */
-    border: 5px solid #E4E7ED; 
-    border-radius: 12px; 
-    background-color: #E4E7ED; 
-    gap: 8px; 
-    padding: 8px; 
-    box-sizing: content-box; 
-    
-    /* ✅ KOREKSI 2: Agar tile selalu kotak, kita gunakan auto-fit/minmax. 
-       Namun karena ini 3x3 fixed, grid-template-rows: repeat(3, 1fr) sudah benar.
-       Grid akan menyesuaikan tinggi berdasarkan lebar 90% dan 1fr. */
+/* Puzzle Board */
+#puzzleBoard,
+#playingBoard,
+#solutionBoard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+
+  width: 90%;
+  max-width: 300px;
+  margin: 20px auto;
+  position: relative;
+
+  border: 5px solid #e4e7ed;
+  border-radius: 12px;
+  background-color: #e4e7ed;
+  gap: 8px;
+  padding: 8px;
+  box-sizing: content-box;
+
+  aspect-ratio: 1 / 1;
 }
 
-/* Gaya Tile */
+/* Tile */
 .tile {
-    /* Aturan tampilan isi tile */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 36px;
-    font-weight: bold;
-    color: white; 
-    cursor: grab;
-    user-select: none;
-    
-    /* Gaya visual */
-    background-color: #008080; 
-    border-radius: 6px; 
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-    
-    /* Transisi untuk animasi perpindahan */
-    transition: all 0.2s ease-in-out; 
-    
-    /* Posisikan tile menggunakan properti Grid */
-    grid-column: auto;
-    grid-row: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 36px;
+  font-weight: bold;
+  color: white;
+  cursor: grab;
+  user-select: none;
 
-    /* ✅ KOREKSI 3: Pastikan tile memiliki aspect ratio 1:1 di dalam grid */
-    aspect-ratio: 1 / 1; 
+  background-color: #008080;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  transition: all 0.2s ease-in-out;
+
+  aspect-ratio: 1 / 1;
+  height: 100%;
 }
 
-/* Style saat tile sedang di-drag */
 .tile.is-dragging {
-    cursor: grabbing;
-    box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.8), 
-                0 0 15px 5px #008080; 
-    z-index: 10;
+  cursor: grabbing;
+  box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.8), 0 0 15px 5px #008080;
+  z-index: 10;
 }
 
 .tile.empty {
-    background-color: transparent;
-    opacity: 1; 
-    box-shadow: none;
-    cursor: default;
+  background-color: transparent;
+  opacity: 1;
+  box-shadow: none;
+  cursor: default;
 }
 
-/* Gaya Modal */
+/* Modal */
 .modal {
-    /* ... (Tetap sama) ... */
+  /* 1. Sudah tidak pakai padding-top (dihapus) */
+
+  /* 2. Flexbox untuk centering */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
 }
+/* Konten Modal */
 .modal-content {
-    /* ... (Tetap sama) ... */
+  background-color: #fefefe;
+
+  /* 3. Hilangkan margin default agar benar-benar center */
+  margin: 0;
+
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 400px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 .close-button {
-    /* ... (Tetap sama) ... */
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+.close-button:hover,
+.close-button:focus {
+  color: #000;
+  cursor: pointer;
 }
 
-/* Gaya Langkah 3 & 4 (Timer, Progress Bar, Navigasi) */
+/* Timer & Counter */
 #timerContainer {
-    font-size: 20px;
-    font-weight: bold;
-    color: #4caf50;
-    margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #4caf50;
+  margin-bottom: 10px;
 }
+#moveCounterContainer {
+  font-size: 20px;
+  font-weight: bold;
+  color: #03a9f4;
+  margin-bottom: 10px;
+}
+
 #solveButton {
-    background-color: #03a9f4;
-    color: white;
+  background-color: #03a9f4;
+  color: white;
 }
-#playAgainButton {
-    background-color: #ff9800;
-    color: white;
+#playAgainButton,
+#solvePlayAgainButton {
+  background-color: #ff9800;
+  color: white;
 }
 
-/* Gaya Progress Bar */
+/* Progress Bar */
 .progress-container {
-    width: 90%; 
-    height: 15px;
-    background-color: #e0e0e0;
-    border-radius: 8px;
-    margin: 15px auto;
-    overflow: hidden; 
+  width: 90%;
+  height: 15px;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  margin: 15px auto;
+  overflow: hidden;
 }
-
 .progress-bar {
-    height: 100%;
-    background-color: #4caf50; 
-    width: 0%; 
-    transition: width 0.3s ease-in-out; 
+  height: 100%;
+  background-color: #4caf50;
+  width: 0%;
+  transition: width 0.3s ease-in-out;
 }
 
 .navigation-group {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 #prevStepButton,
 #nextStepButton {
-    background-color: #1e88e5;
-    color: white;
+  background-color: #1e88e5;
+  color: white;
 }
 
-/* MEDIA QUERY UNTUK LAYAR KECIL (RESPONSIVITAS TOMBOL) */
-@media (max-width: 400px) {
-    /* Membuat tombol bertumpuk vertikal di layar kecil */
-    .button-group {
-        flex-direction: column; 
-        align-items: stretch; 
-    }
-    .button-group button {
-        margin: 5px 0; 
-    }
-}
-
-/* ✅ GAYA BARU: Tombol Home/Kembali */
+/* Tombol Home */
 #homeButton {
-    /* Posisi di luar alur dokumen */
-    position: fixed; /* Mengambang relatif terhadap viewport */
-    top: 20px;       /* Jarak dari atas */
-    right: 20px;     /* Jarak dari kanan */
-    z-index: 100;    /* Pastikan di atas elemen lain */
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
 
-    padding: 10px 15px;
-    font-size: 14px;
-    background-color: #3f51b5; /* Warna Biru */
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s;
+  padding: 10px 15px;
+  font-size: 14px;
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s;
 }
-
 #homeButton:hover {
-    background-color: #303f9f;
+  background-color: #303f9f;
 }
 
-/* KOREKSI: Pastikan tombol Home tersembunyi jika ada class hidden */
-.hidden {
-    display: none !important;
+/* Media Query Layar Kecil */
+@media (max-width: 400px) {
+  .button-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .button-group button {
+    margin: 5px 0;
+  }
+}
+
+/* ========================================================= */
+/* 🆕 GAYA BARU UNTUK STATISTIK ALGORITMA DI SCREEN 4 */
+/* ========================================================= */
+
+.result-stats {
+  margin: 20px auto;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #e6f7ff; /* Latar belakang biru muda lembut */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  font-size: 1em;
+  max-width: 400px;
+  gap: 10px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Sedikit bayangan dalam */
+}
+
+.result-stats > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 5px;
+}
+
+.stat-label {
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 2px;
+  font-size: 0.9em;
+}
+
+/* Target ID untuk nilai numerik */
+#executionTimeDisplay,
+#totalStepsDisplay {
+  font-size: 1.8em; /* Ukuran besar untuk angka */
+  font-weight: bold;
+  color: #008080; /* Warna Tile Anda */
+  line-height: 1;
+}
+
+.stat-unit {
+  font-size: 0.8em;
+  color: #777;
+  margin-top: 2px;
+}
+
+@media (max-width: 400px) {
+  .result-stats {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .result-stats > div {
+    align-items: flex-start;
+    padding: 5px 0;
+    border-bottom: 1px dashed #eee;
+  }
+  .result-stats > div:last-child {
+    border-bottom: none;
+  }
 }
