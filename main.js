@@ -52,7 +52,7 @@ const prevStepButton = document.getElementById("prevStepButton");
 const nextStepButton = document.getElementById("nextStepButton");
 const solvePlayAgainButton = document.getElementById("solvePlayAgainButton");
 
-// 🆕 ELEMEN BARU UNTUK WAKTU & LANGKAH ALGORITMA
+// ELEMEN BARU UNTUK WAKTU & LANGKAH ALGORITMA
 const executionTimeElement = document.getElementById("executionTimeDisplay");
 const totalStepsElement = document.getElementById("totalStepsDisplay");
 
@@ -89,7 +89,7 @@ function isSolvable(state) {
   return inversions % 2 === 0;
 }
 
-// ✅ MODIFIKASI: RenderPuzzle kini SELALU membuat ulang elemen
+//MODIFIKASI: RenderPuzzle kini SELALU membuat ulang elemen
 function renderPuzzle(state, boardElement) {
   // 1. Selalu kosongkan board (Memaksa render ulang)
   boardElement.innerHTML = "";
@@ -365,7 +365,7 @@ async function getSolutionPath(startState) {
       return { path: [], time: 0, steps: 0 };
     }
 
-    // 🆕 API sudah mengirimkan data path yang runtut (hasil convertToFrontEnd di Python)
+    // API sudah mengirimkan data path yang runtut (hasil convertToFrontEnd di Python)
     const finalPath = [];
 
     // Tambahkan state awal (langkah 0)
@@ -380,7 +380,7 @@ async function getSolutionPath(startState) {
       }
     }
     
-    // 🔥 PERBAIKAN Logika Tambahan: Pastikan goal state ada di akhir
+    // PERBAIKAN Logika Tambahan: Pastikan goal state ada di akhir
     // Cek jika state terakhir bukan goal state, tambahkan goal state jika langkahnya pas
     // Ini membantu menyinkronkan total langkah jika API memotong langkah terakhir
     if (result.totalSteps > 0 && finalPath.length - 1 < result.totalSteps) {
@@ -402,7 +402,7 @@ async function getSolutionPath(startState) {
   }
 }
 
-// ✅ MODIFIKASI: showSolutionStep
+// MODIFIKASI: showSolutionStep
 function showSolutionStep(stepIndex) {
   // totalSteps akan menjadi solutionPath.length - 1 (misal 38 - 1 = 37)
   const totalMoves = solutionPath.length - 1; 
@@ -546,23 +546,23 @@ solveButton.onclick = async function () {
   totalStepsElement.textContent = '...';
 
 
-  // 🆕 Panggil API solver dan dapatkan object hasil
+  // Panggil API solver dan dapatkan object hasil
   const solveResult = await getSolutionPath(currentPuzzleState);
   solutionPath = solveResult.path;
   const executionTime = solveResult.time;
   // const totalSteps = solveResult.steps; // Nilai mentah dari API (misalnya 37)
 
   if (solutionPath.length > 0) {
-    // 🔥 PERBAIKAN UTAMA: Gunakan panjang array state - 1 sebagai total langkah
+    // PERBAIKAN UTAMA: Gunakan panjang array state - 1 sebagai total langkah
     // Nilai ini akan selalu sama dengan pembilang counter (misal: 38 - 1 = 37)
     const totalMovesDisplayed = solutionPath.length - 1; 
 
-    // 🆕 Tampilkan Waktu dan Langkah
+    // Tampilkan Waktu dan Langkah
     executionTimeElement.textContent = executionTime.toFixed(7); // Menggunakan toFixed(7)
     totalStepsElement.textContent = totalMovesDisplayed; // SINKRONISASI
 
     // Langkah 0 adalah state awal
-    // 🆕 Gunakan totalMovesDisplayed untuk tampilan header juga
+    // Gunakan totalMovesDisplayed untuk tampilan header juga
     document.getElementById(
       "solutionStatus"
     ).textContent = `✅ Solusi ditemukan! Total ${totalMovesDisplayed} langkah dalam ${executionTime.toFixed(7)} detik.`;
