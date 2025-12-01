@@ -98,6 +98,77 @@ const DRAG_THRESHOLD = 30; // Jarak geser minimum dalam piksel
 // 2. FUNGSI UTILITY & PUZZLE CORE
 // =========================================================
 
+// =========================================================
+// FUNGSI BARU: MENCARI UBIN YANG BERGERAK (FIXED FOR 1D ARRAY INPUT)
+// =========================================================
+
+/**
+ * Membandingkan State A (Parent) dan State B (Child) untuk mengetahui ubin mana yang berpindah.
+ * FUNGSI INI KINI MENGASUMSIKAN INPUT ADALAH ARRAY 1D (flat: [1, 2, 3, ... 0])
+ */
+function getMovedTile(parentState, childState) {
+    // 1. Cek Node Awal
+    if (!parentState || parentState.length === 0) {
+        return "START"; 
+    }
+    
+    // Pengecekan dasar, memastikan ChildState ada dan memiliki panjang yang benar
+    if (!childState || childState.length !== 9) {
+        return "ERROR: ChildState Tidak Valid";
+    }
+    
+    // Kita asumsikan kedua state kini adalah array 1D dengan 9 elemen.
+    const size = 3;
+
+    // 2. Cari Posisi 0 di kedua state (Indeks 1D)
+    // Menggunakan .indexOf(0) untuk mencari posisi ubin kosong dengan cepat
+    const zeroIndexA = parentState.indexOf(0); // Posisi 0 di Parent (indeks 0-8)
+    const zeroIndexB = childState.indexOf(0);  // Posisi 0 di Child (indeks 0-8)
+
+    // 3. Pengecekan 0 Hilang (Penyebab error Anda sebelumnya)
+    if (zeroIndexA === -1 || zeroIndexB === -1) {
+        return "ERROR: Blank Tile 0 Hilang"; 
+    }
+    
+    // 4. Konversi Indeks 1D ke Posisi 2D (r, c) untuk Perhitungan Pergerakan
+    const zeroPosA = { r: Math.floor(zeroIndexA / size), c: zeroIndexA % size };
+    const zeroPosB = { r: Math.floor(zeroIndexB / size), c: zeroIndexB % size };
+    
+    // 5. Tentukan ubin yang bergerak
+    // Ubin yang bergerak adalah ubin di posisi 0 BARU (zeroIndexB) di State Parent
+    // Akses langsung dari array 1D (parentState[index])
+    const movedTile = parentState[zeroIndexB]; 
+
+    // 6. Tentukan arah pergerakan (berdasarkan pergerakan 0)
+    let moveDirection = "";
+
+    // 0 bergerak ke KANAN (c bertambah) => Ubin bergerak ke KIRI
+    if (zeroPosB.r === zeroPosA.r && zeroPosB.c === zeroPosA.c + 1) {
+        moveDirection = "KIRI"; 
+    }
+    // 0 bergerak ke KIRI (c berkurang) => Ubin bergerak ke KANAN
+    else if (zeroPosB.r === zeroPosA.r && zeroPosB.c === zeroPosA.c - 1) {
+        moveDirection = "KANAN"; 
+    }
+    // 0 bergerak ke BAWAH (r bertambah) => Ubin bergerak ke ATAS
+    else if (zeroPosB.c === zeroPosA.c && zeroPosB.r === zeroPosA.r + 1) {
+        moveDirection = "ATAS"; 
+    }
+    // 0 bergerak ke ATAS (r berkurang) => Ubin bergerak ke BAWAH
+    else if (zeroPosB.c === zeroPosA.c && zeroPosB.r === zeroPosA.r - 1) {
+        moveDirection = "BAWAH"; 
+    } else {
+         return "ERROR: Bukan Tetangga";
+    }
+    
+    // 7. Pengecekan Final
+    if (movedTile === 0) {
+        return "ERROR: Ubin 0 Berpindah";
+    }
+
+    return `${movedTile} ${moveDirection}`;
+}
+
 // Cek Solvability (Inversi) - DIBIARKAN UNTUK MEMASTIKAN STATUS PUZZLE
 function isSolvable(state) {
     let inversions = 0;
@@ -578,6 +649,28 @@ function renderD3TreeInModal(flatTreeData, currentStepState) {
         .attr("text-anchor", "middle")
         .text(d => `H: ${d.data.heuristic}`)
         .style("font-size", "9px");
+
+    // Menampilkan Ubin yang Bergerak
+    node.append("text")
+        .attr("dy", "-2.4em") 
+        .attr("x", 0) 
+        .attr("text-anchor", "middle") 
+        .text(d => {
+            // State saat ini (ChildState)
+            // Gunakan pengecekan defensif untuk memastikan d.data dan d.data.state ada
+            const childState = d.data && d.data.state; 
+
+            // State Parent: Hanya ambil state jika d.parent, d.parent.data, dan state-nya ada
+            const parentState = d.parent && d.parent.data && d.parent.data.state
+                ? d.parent.data.state 
+                : null;
+
+            if (!childState) return "ERROR: Data Anak Hilang";
+
+            return getMovedTile(parentState, childState);
+        }) 
+        .style("font-size", "10px")
+        .style("font-weight", "bold");
         
     // Teks State (di atas node) - Menggunakan format list sederhana
     node.append("text")
