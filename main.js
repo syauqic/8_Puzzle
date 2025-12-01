@@ -581,10 +581,10 @@ function renderD3TreeInModal(flatTreeData, currentStepState) {
         
     // Teks State (di atas node) - Menggunakan format list sederhana
     node.append("text")
-        .attr("dy", "-2.1em") // Pindah ke atas lingkaran
+        .attr("dy", "0.4em") // Pindah ke atas lingkaran
         .attr("x", 0) // Kembali ke tengah node (x=0)
         .attr("text-anchor", "middle") // Dipusatkan
-        .text(d => `[${d.data.nodeIndex}]`) // Format list [1, 2, 3, ...]
+        .text(d => `${d.data.nodeIndex}`) // Format list [1, 2, 3, ...]
         .style("font-size", "10px")
         .style("font-weight", "bold");
 
