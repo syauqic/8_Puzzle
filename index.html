@@ -2,9 +2,13 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>8 Puzzle Game</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
   </head>
   <body>
     <button id="homeButton" class="nav-button hidden">🏠 Home</button>
@@ -42,34 +46,71 @@
       </div>
 
       <div class="container hidden" id="screen4">
-        <h2>Hasil Solusi</h2>
-        <p id="solutionStatus">
-          Solusi ditemukan. Gunakan panah untuk melihat langkah.
-        </p>
-        
-        <div class="result-stats">
+        <div class="main-content-wrapper">
+          <h2>Hasil Solusi</h2>
+          <p id="solutionStatus">
+            Solusi ditemukan. Gunakan panah untuk melihat langkah.
+          </p>
+
+          <div class="result-stats">
             <div>
-                <span class="stat-label">⚡ Waktu Algoritma:</span>
-                <span id="executionTimeDisplay">N/A</span>
-                <span class="stat-unit">detik</span>
+              <span class="stat-label">⚡ Waktu Algoritma:</span>
+              <span id="executionTimeDisplay">N/A</span>
+              <span class="stat-unit">detik</span>
             </div>
             <div>
-                <span class="stat-label">👣 Total Langkah Solusi:</span>
-                <span id="totalStepsDisplay">N/A</span>
-                <span class="stat-unit">langkah</span>
+              <span class="stat-label">👣 Total Langkah Solusi:</span>
+              <span id="totalStepsDisplay">N/A</span>
+              <span class="stat-unit">langkah</span>
             </div>
+          </div>
+
+          <div id="solutionBoard" class="puzzle-board"></div>
+
+          <div class="progress-container">
+            <div id="solutionProgress" class="progress-bar"></div>
+          </div>
+
+          <div class="button-group navigation-group">
+            <button id="prevStepButton" disabled>&#9664; Sebelumnya</button>
+            <span id="stepCounter">Langkah 0/0</span>
+            <button id="nextStepButton" disabled>Selanjutnya &#9654;</button>
+          </div>
+
+          <div class="button-group solve-actions">
+            <button id="solvePlayAgainButton">Main Lagi</button>
+            <button id="explanationButton" disabled>
+              Penjelasan Pohon (AI) &#9658;
+            </button>
+          </div>
         </div>
-        <div id="solutionBoard" class="puzzle-board"></div>
-        <div class="progress-container">
-          <div id="solutionProgress" class="progress-bar"></div>
-        </div>
-        <div class="button-group navigation-group">
-          <button id="prevStepButton" disabled>&#9664; Sebelumnya</button>
-          <span id="stepCounter">Langkah 0/0</span>
-          <button id="nextStepButton" disabled>Selanjutnya &#9654;</button>
-        </div>
-        <div class="button-group">
-          <button id="solvePlayAgainButton">Main Lagi</button>
+
+        <div id="treeExplanationPanel" class="tree-panel">
+          <h3>Penjelasan Langkah Algoritma (Best-First Search)</h3>
+          <div id="treeContent" class="tree-content">
+            <button id="openTreeModalButton" class="modal-open-button" disabled>
+              🌲 Tampilkan Pohon Node (Visualisasi)
+            </button>
+            <h4>👣 Jalur Solusi Terbaik</h4>
+            <div id="solutionPathContainer">
+              <p class="loading-message">
+                Tekan tombol 'Penjelasan Pohon (AI)' untuk menampilkan alur
+                solusi.
+              </p>
+            </div>
+
+            <hr style="margin: 15px 0; border: 0; border-top: 1px dashed #ccc" />
+
+            <h4>
+              🌲 Total <span id="totalNodesExploredDisplay">0</span> Node
+              Dieksplorasi (50 Teratas)
+            </h4>
+            <div id="exploredNodesListContainer" class="explored-nodes-list">
+              <p class="loading-message">
+                Memuat data node yang dieksplorasi...
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -85,6 +126,14 @@
       </div>
     </div>
 
+    <div id="treeModal" class="modal hidden">
+      <div class="modal-content large-modal">
+        <span id="closeTreeModalButton" class="close-button">&times;</span>
+        <h2>Visualisasi Pohon Eksplorasi Node (Best-First Search)</h2>
+        <p>Visualisasi ini menampilkan semua yang dieksplorasi. Lingkaran yang ada kuning adalah langkah solusi saat ini.</p>
+        <div id="treeVisualizationInModal" class="tree-visualization-container"></div>
+      </div>
+    </div>
     <script src="main.js"></script>
   </body>
 </html>

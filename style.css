@@ -1,275 +1,298 @@
 /* Atur font dan background */
 body {
-  font-family: sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  margin: 0;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
 
-  /* Tetap jaga responsif dasar */
-  padding: 20px;
-  background-color: #f0f4f8;
-  color: #333;
-  width: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden;
-  touch-action: manipulation;
+    /* Tetap jaga responsif dasar */
+    padding: 20px;
+    background-color: #f0f4f8;
+    color: #333;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    touch-action: manipulation;
 }
 
-/* Wadah Utama */
+/* Wadah Utama (Diperluas untuk mode sidebar) */
 .game-wrapper {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  max-width: 500px;
-  width: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 500px; /* Batasi lebar default untuk screen 1, 2, 3 */
+    width: 100%;
+    /* Gunakan lebar penuh saat screen4 aktif dengan sidebar di desktop */
 }
 
 /* Kotak Kontainer Utama */
 .container {
-  text-align: center;
-  padding: 30px;
-  border-radius: 12px;
-  background-color: #fff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 30px;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 
-  width: 100%;
-  box-sizing: border-box;
+    width: 100%;
+    box-sizing: border-box;
+    /* PENTING: Untuk Screen 4, padding dipindahkan ke main-content-wrapper */
 }
 
 /* Sembunyikan elemen */
 .hidden {
-  display: none !important;
+    display: none !important;
 }
 
 /* Button Group */
 .button-group {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
 }
 .button-group button {
-  padding: 12px 25px;
-  margin: 5px 15px;
-  font-size: 16px;
-  cursor: pointer;
-  border: none;
-  border-radius: 8px;
-  transition: background-color 0.3s, transform 0.1s;
+    padding: 12px 25px;
+    margin: 5px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s, transform 0.1s;
 }
 .button-group button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  opacity: 0.9;
+    transform: translateY(-2px);
+    opacity: 0.9;
 }
 
 #playButton {
-  background-color: #4caf50;
-  color: white;
+    background-color: #4caf50;
+    color: white;
 }
 #guideButton {
-  background-color: #ff9800;
-  color: white;
+    background-color: #ff9800;
+    color: white;
 }
 #generateButton {
-  background-color: #03a9f4;
-  color: white;
+    background-color: #03a9f4;
+    color: white;
 }
 #actionButton {
-  background-color: #e91e63;
-  color: white;
+    background-color: #e91e63;
+    color: white;
 }
 #actionButton:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  transform: none;
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* Puzzle Board */
 #puzzleBoard,
 #playingBoard,
 #solutionBoard {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
 
-  width: 90%;
-  max-width: 300px;
-  margin: 20px auto;
-  position: relative;
+    width: 90%;
+    max-width: 300px;
+    margin: 20px auto;
+    position: relative;
 
-  border: 5px solid #e4e7ed;
-  border-radius: 12px;
-  background-color: #e4e7ed;
-  gap: 8px;
-  padding: 8px;
-  box-sizing: content-box;
+    border: 5px solid #e4e7ed;
+    border-radius: 12px;
+    background-color: #e4e7ed;
+    gap: 8px;
+    padding: 8px;
+    box-sizing: content-box;
 
-  aspect-ratio: 1 / 1;
+    aspect-ratio: 1 / 1;
 }
 
 /* Tile */
 .tile {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 36px;
-  font-weight: bold;
-  color: white;
-  cursor: grab;
-  user-select: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 36px;
+    font-weight: bold;
+    color: white;
+    cursor: grab;
+    user-select: none;
 
-  background-color: #008080;
-  border-radius: 6px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #008080;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
-  transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
 
-  aspect-ratio: 1 / 1;
-  height: 100%;
+    aspect-ratio: 1 / 1;
+    height: 100%;
 }
 
 .tile.is-dragging {
-  cursor: grabbing;
-  box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.8), 0 0 15px 5px #008080;
-  z-index: 10;
+    cursor: grabbing;
+    /* Menggunakan box-shadow yang lebih netral agar terlihat jelas */
+    box-shadow: 0 0 0 4px rgba(0, 128, 128, 0.5), 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 10;
 }
 
 .tile.empty {
-  background-color: transparent;
-  opacity: 1;
-  box-shadow: none;
-  cursor: default;
+    background-color: transparent;
+    opacity: 1;
+    box-shadow: none;
+    cursor: default;
 }
 
 /* Modal */
 .modal {
-  /* 1. Sudah tidak pakai padding-top (dihapus) */
+    /* MODIFIKASI: Menambahkan properti flexbox untuk centering yang lebih baik */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-  /* 2. Flexbox untuk centering */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7); /* Lebih gelap dari sebelumnya */
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 /* Konten Modal */
 .modal-content {
-  background-color: #fefefe;
-
-  /* 3. Hilangkan margin default agar benar-benar center */
-  margin: 0;
-
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 400px;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    /* MODIFIKASI: Menghapus margin: 0; agar bisa di-center oleh flex container */
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%; /* Mengubah lebar default */
+    max-width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
 }
+
+/* GAYA BARU: Khusus Modal Pohon (Large Modal) */
+.modal-content.large-modal {
+    max-width: 95%; /* Lebih lebar */
+    width: 900px; /* Lebar ideal */
+    height: 90vh; /* Tinggi yang lebih besar, 90% dari viewport height */
+    max-height: 900px;
+    display: flex; /* Menggunakan flexbox untuk layout vertikal konten */
+    flex-direction: column;
+}
+
+/* GAYA BARU: Kontainer SVG untuk D3.js di dalam modal */
+#treeVisualizationInModal {
+    flex-grow: 1; /* Mengambil ruang vertikal yang tersisa */
+    width: 100%;
+    overflow: auto; /* PENTING: agar visualisasi D3 bisa di-scroll */
+    margin-top: 10px;
+    background-color: #f0f0f0; /* Latar belakang abu-abu muda untuk SVG */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
 .close-button {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
 }
 .close-button:hover,
 .close-button:focus {
-  color: #000;
-  cursor: pointer;
+    color: #000;
+    cursor: pointer;
 }
 
 /* Timer & Counter */
 #timerContainer {
-  font-size: 20px;
-  font-weight: bold;
-  color: #4caf50;
-  margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #4caf50;
+    margin-bottom: 10px;
 }
 #moveCounterContainer {
-  font-size: 20px;
-  font-weight: bold;
-  color: #03a9f4;
-  margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #03a9f4;
+    margin-bottom: 10px;
 }
 
 #solveButton {
-  background-color: #03a9f4;
-  color: white;
+    background-color: #03a9f4;
+    color: white;
 }
 #playAgainButton,
 #solvePlayAgainButton {
-  background-color: #ff9800;
-  color: white;
+    background-color: #ff9800;
+    color: white;
 }
 
 /* Progress Bar */
 .progress-container {
-  width: 90%;
-  height: 15px;
-  background-color: #e0e0e0;
-  border-radius: 8px;
-  margin: 15px auto;
-  overflow: hidden;
+    width: 90%;
+    height: 15px;
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    margin: 15px auto;
+    overflow: hidden;
 }
 .progress-bar {
-  height: 100%;
-  background-color: #4caf50;
-  width: 0%;
-  transition: width 0.3s ease-in-out;
+    height: 100%;
+    background-color: #4caf50;
+    width: 0%;
+    transition: width 0.3s ease-in-out;
 }
 
 .navigation-group {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 #prevStepButton,
 #nextStepButton {
-  background-color: #1e88e5;
-  color: white;
+    background-color: #1e88e5;
+    color: white;
 }
 
 /* Tombol Home */
 #homeButton {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 100;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
 
-  padding: 10px 15px;
-  font-size: 14px;
-  background-color: #3f51b5;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s;
+    padding: 10px 15px;
+    font-size: 14px;
+    background-color: #3f51b5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
 }
 #homeButton:hover {
-  background-color: #303f9f;
+    background-color: #303f9f;
 }
 
 /* Media Query Layar Kecil */
 @media (max-width: 400px) {
-  .button-group {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .button-group button {
-    margin: 5px 0;
-  }
+    .button-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .button-group button {
+        margin: 5px 0;
+    }
 }
 
 /* ========================================================= */
@@ -277,62 +300,295 @@ body {
 /* ========================================================= */
 
 .result-stats {
-  margin: 20px auto;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #e6f7ff; /* Latar belakang biru muda lembut */
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  align-items: center;
-  font-size: 1em;
-  max-width: 400px;
-  gap: 10px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Sedikit bayangan dalam */
+    margin: 20px auto;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #e6f7ff; /* Latar belakang biru muda lembut */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 1em;
+    max-width: 400px;
+    gap: 10px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Sedikit bayangan dalam */
 }
 
 .result-stats > div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 5px;
 }
 
 .stat-label {
-  font-weight: 500;
-  color: #555;
-  margin-bottom: 2px;
-  font-size: 0.9em;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 2px;
+    font-size: 0.9em;
 }
 
 /* Target ID untuk nilai numerik */
 #executionTimeDisplay,
 #totalStepsDisplay {
-  font-size: 1.8em; /* Ukuran besar untuk angka */
-  font-weight: bold;
-  color: #008080; /* Warna Tile Anda */
-  line-height: 1;
+    font-size: 1.8em; /* Ukuran besar untuk angka */
+    font-weight: bold;
+    color: #008080; /* Warna Tile Anda */
+    line-height: 1;
 }
 
 .stat-unit {
-  font-size: 0.8em;
-  color: #777;
-  margin-top: 2px;
+    font-size: 0.8em;
+    color: #777;
+    margin-top: 2px;
 }
 
 @media (max-width: 400px) {
-  .result-stats {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .result-stats > div {
-    align-items: flex-start;
-    padding: 5px 0;
-    border-bottom: 1px dashed #eee;
-  }
-  .result-stats > div:last-child {
-    border-bottom: none;
-  }
+    .result-stats {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .result-stats > div {
+        align-items: flex-start;
+        padding: 5px 0;
+        border-bottom: 1px dashed #eee;
+    }
+    .result-stats > div:last-child {
+        border-bottom: none;
+    }
+}
+
+
+/* ========================================================= */
+/* GAYA BARU UNTUK FITUR PENJELASAN POHON DI SCREEN 4 */
+/* ========================================================= */
+
+/* Tombol Penjelasan */
+#explanationButton {
+    background-color: #555; /* Warna abu-abu gelap netral */
+    color: white;
+    padding: 12px 15px;
+    margin-left: auto; 
+    transition: background-color 0.3s;
+}
+#explanationButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Penyesuaian Grup Tombol di Screen 4 */
+.solve-actions {
+    justify-content: space-between;
+    width: 100%;
+    max-width: 400px; /* Batasi lebar agar seragam dengan result-stats */
+    margin: 20px auto;
+    display: flex;
+    align-items: center;
+}
+.solve-actions button {
+    margin: 5px 0; /* Hapus margin horizontal yang berlebihan */
+}
+
+/* 1. Kontainer Utama Screen 4 (MODIFIKASI UTAMA) */
+#screen4 {
+    max-width: unset; 
+    display: flex; 
+    flex-direction: column; /* Default: susun vertikal (untuk mobile) */
+    padding: 0;
+    width: 100%;
+    background-color: #fff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+}
+
+/* Wadah Konten Utama (Puzzle, Stats, Navigasi) */
+.main-content-wrapper {
+    /* Gunakan max-width agar konten tidak terlalu melebar */
+    max-width: 500px;
+    width: 100%;
+    padding: 30px; /* Padding utama dipindahkan ke sini */
+    box-sizing: border-box;
+    transition: width 0.3s ease-in-out;
+    margin: 0 auto; /* Tengah di mode mobile/default */
+}
+
+/* 2. Panel Sidebar Penjelasan Pohon (Default/Mobile) */
+#treeExplanationPanel { 
+    /* Di mobile, panel ini ditampilkan di bawah */
+    position: static; 
+    width: 100%;
+    height: auto;
+    background-color: #f7f7f7;
+    border-left: none;
+    border-top: 2px solid #e0e0e0; /* Pemisah di mode mobile */
+    box-shadow: none;
+    z-index: 50;
+    
+    text-align: left;
+    padding: 20px;
+    box-sizing: border-box;
+    
+    /* Secara default sembunyikan di mobile agar hanya muncul saat tombol ditekan */
+    display: none; 
+}
+
+/* Tampilkan panel jika kelas .with-sidebar ditambahkan (Mobile) */
+#screen4.with-sidebar #treeExplanationPanel {
+    display: block; 
+}
+
+#treeExplanationPanel h3 {
+    color: #008080;
+    margin-top: 0;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+/* KONTEN POHON */
+#treeContent {
+    /* Batasi tinggi di mobile agar mudah di-scroll */
+    max-height: 400px; 
+    overflow-y: auto; 
+    padding-right: 10px;
+}
+
+/* GAYA KARTU LANGKAH (Tree Visualization) */
+
+.tree-step-card {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+    transition: all 0.2s;
+}
+
+.tree-step-card.current-step {
+    border: 2px solid #e91e63; /* Highlight warna pink */
+    background-color: #ffeff4; /* Latar belakang pink muda */
+    box-shadow: 0 4px 8px rgba(233, 30, 99, 0.2);
+}
+
+.step-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.heuristic-value {
+    color: #ff9800; /* Warna oranye untuk Heuristic */
+}
+
+.step-move {
+    font-size: 0.9em;
+    color: #555;
+    margin: 0;
+}
+
+.goal-reached {
+    color: #4caf50;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Visualisasi Node yang Dieksplorasi */
+#treeExplanationPanel ul {
+    list-style-type: none;
+    padding-left: 0;
+    font-size: 0.9em;
+}
+#treeExplanationPanel ul li {
+    margin-bottom: 3px;
+    padding: 2px 0;
+    border-bottom: 1px dotted #e9ecef;
+}
+
+/* GAYA BARU: Tombol Buka Modal di Panel Samping */
+#openTreeModalButton {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: #008080; /* Hijau Teal */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+#openTreeModalButton:hover:not(:disabled) {
+    background-color: #006666;
+}
+
+#openTreeModalButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+
+/* GAYA BARU: D3.js untuk Node dan Link (PENTING untuk Visualisasi di Modal) */
+#treeVisualizationInModal .link {
+    fill: none;
+    stroke: #aaa;
+    stroke-width: 1.5px;
+}
+
+#treeVisualizationInModal .node circle {
+    cursor: pointer;
+    stroke-width: 1px;
+}
+
+
+/* ========================================================= */
+/* MEDIA QUERY UNTUK LAYAR LEBAR (Desktop/Tablet: di atas 768px) */
+/* ========================================================= */
+@media (min-width: 768px) {
+    /* Perluas wadah game wrapper agar bisa menampung 2 kolom */
+    .game-wrapper {
+        max-width: 850px; /* Tambah lebar agar tampilan 2 kolom nyaman */
+    }
+    
+    /* 3. Efek Aktif (Sidebar Terbuka) di Layar Lebar */
+    #screen4.with-sidebar {
+        flex-direction: row; /* Ubah ke layout horizontal (2 kolom) */
+        align-items: stretch; /* Regangkan tinggi ke penuh */
+        max-width: 850px; 
+        min-height: 80vh;
+    }
+    
+    /* Sembunyikan margin auto di mode sidebar agar konten merapat */
+    #screen4.with-sidebar .main-content-wrapper {
+        width: 50%; /* Konten utama 50% */
+        flex-shrink: 0; 
+        max-width: 425px; /* Batasi lebar setengahnya */
+        margin: 0;
+    }
+    
+    #screen4.with-sidebar #treeExplanationPanel {
+        /* Posisikan di kanan sebagai sidebar */
+        position: relative; 
+        width: 50%; 
+        min-height: 100%;
+        border-left: 1px solid #e0e0e0; /* Border sebagai pemisah */
+        border-top: none; 
+        display: block; /* Selalu tampil di mode desktop saat aktif */
+        padding: 30px 20px;
+        background-color: #f7f7f7;
+    }
+
+    #treeContent {
+        /* Ketinggian disesuaikan agar panel dapat di-scroll */
+        max-height: calc(95vh - 60px - 70px - 50px); /* Disesuaikan untuk tombol baru */
+    }
 }
