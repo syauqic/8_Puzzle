@@ -7,19 +7,19 @@ const API_URL = "https://8-puzzle-solver-api.vercel.app/api/solve";
 
 // Fungsi bantu untuk menampilkan/menyembunyikan screen
 const showScreen = (id) => {
-    // Menggunakan 'id' sebagai parameter
-    document.querySelectorAll(".container").forEach((screen) => {
-        screen.classList.add("hidden");
-        screen.classList.remove("with-sidebar"); // Hapus sidebar saat pindah screen
-    });
-    document.getElementById(id).classList.remove("hidden");
+  // Menggunakan 'id' sebagai parameter
+  document.querySelectorAll(".container").forEach((screen) => {
+    screen.classList.add("hidden");
+    screen.classList.remove("with-sidebar"); // Hapus sidebar saat pindah screen
+  });
+  document.getElementById(id).classList.remove("hidden");
 
-    if (id !== "screen1") {
-        homeButton.classList.remove("hidden");
-        homeButton.style.display = "inline-block";
-    } else {
-        homeButton.classList.add("hidden");
-    }
+  if (id !== "screen1") {
+    homeButton.classList.remove("hidden");
+    homeButton.style.display = "inline-block";
+  } else {
+    homeButton.classList.add("hidden");
+  }
 };
 
 // Elemen UI

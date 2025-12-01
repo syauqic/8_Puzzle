@@ -2,10 +2,7 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>8 Puzzle Game</title>
     <link rel="stylesheet" href="style.css" />
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -88,9 +85,6 @@
         <div id="treeExplanationPanel" class="tree-panel">
           <h3>Penjelasan Langkah Algoritma (Best-First Search)</h3>
           <div id="treeContent" class="tree-content">
-            <button id="openTreeModalButton" class="modal-open-button" disabled>
-              🌲 Tampilkan Pohon Node (Visualisasi)
-            </button>
             <h4>👣 Jalur Solusi Terbaik</h4>
             <div id="solutionPathContainer">
               <p class="loading-message">
@@ -101,7 +95,11 @@
 
             <hr style="margin: 15px 0; border: 0; border-top: 1px dashed #ccc" />
 
-            <h4>
+            <button id="openTreeModalButton" class="modal-open-button" disabled>
+              🌲 Tampilkan Pohon Node (Visualisasi)
+            </button>
+
+            <!-- <h4>
               🌲 Total <span id="totalNodesExploredDisplay">0</span> Node
               Dieksplorasi (50 Teratas)
             </h4>
@@ -109,7 +107,7 @@
               <p class="loading-message">
                 Memuat data node yang dieksplorasi...
               </p>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
